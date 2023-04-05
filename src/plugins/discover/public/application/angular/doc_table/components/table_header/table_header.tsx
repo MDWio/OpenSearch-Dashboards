@@ -59,7 +59,14 @@ export function TableHeader({
   onRemoveColumn,
   sortOrder,
 }: Props) {
-  const displayedColumns = getDisplayedColumns(columns, indexPattern, hideTimeColumn, isShortDots);
+  const columnsParsed = JSON.parse(JSON.stringify(columns));
+  columnsParsed.push('Action');
+  const displayedColumns = getDisplayedColumns(
+    columnsParsed,
+    indexPattern,
+    hideTimeColumn,
+    isShortDots
+  );
 
   return (
     <tr data-test-subj="docTableHeader" className="osdDocTableHeader">

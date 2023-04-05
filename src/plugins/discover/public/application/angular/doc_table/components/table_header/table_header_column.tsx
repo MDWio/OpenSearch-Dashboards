@@ -181,7 +181,7 @@ export function TableHeaderColumn({
   ];
 
   return (
-    <th data-test-subj="docTableHeaderField">
+    <th data-test-subj="docTableHeaderField" className="docTableHeaderFieldMinWidth">
       <span data-test-subj={`docTableHeader-${name}`}>
         {displayName}
         {buttons

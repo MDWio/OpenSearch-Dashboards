@@ -1,0 +1,16 @@
+.osdViewerOpenModal {
+  height: 800px;
+}
+.iframe-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+.iframe {
+  flex-grow: 1;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}

@@ -1,0 +1,10 @@
+<% var attributes='' ; if (sourcefield) {
+    attributes='class="eui-textBreakAll eui-textBreakWord" style="vertical-align: middle;"' ; } else {
+    attributes='class="osdDocTableCell__dataField eui-textBreakAll eui-textBreakWord" style="vertical-align: middle;"' ; } %>
+    <td <%=attributes %> data-test-subj="docTableField">
+        <span class="osdDocTableCell__filter">
+            <button ng-click="openViewer()" class="euiButton euiButton--primary euiSuperUpdateButton euiButton--fill" style="margin-right: 10px;">
+              View DICOM
+            </button>
+        </span>
+    </td>
