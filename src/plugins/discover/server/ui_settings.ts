@@ -48,7 +48,7 @@ import {
   MODIFY_COLUMNS_ON_SWITCH,
   MARKETPLACE_API,
   MARKETPLACE_API_AMAZON,
-  MARKETPLACE_API_SECRET_KEY,
+  MARKETPLACE_API_OPENSEARCH_KEY,
   REMOVE_AMAZON_ENDPOINT,
   VIEWER_URL,
 } from '../common';
@@ -215,7 +215,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_SECRET_KEY]: {
+  [MARKETPLACE_API_OPENSEARCH_KEY]: {
     name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiKeyTitle', {
       defaultMessage: 'Marketplace API Key',
     }),

@@ -43,6 +43,6 @@ export const CONTEXT_TIE_BREAKER_FIELDS_SETTING = 'context:tieBreakerFields';
 export const MODIFY_COLUMNS_ON_SWITCH = 'discover:modifyColumnsOnSwitch';
 export const MARKETPLACE_API = 'discover:viewer:marketplaceUrl';
 export const MARKETPLACE_API_AMAZON = 'discover:viewer:marketplaceApiAmazon';
-export const MARKETPLACE_API_SECRET_KEY = 'discover:viewer:marketplaceApiKey';
+export const MARKETPLACE_API_OPENSEARCH_KEY = 'discover:viewer:marketplaceApiKey';
 export const VIEWER_URL = 'discover:viewer:viewerUrl';
 export const REMOVE_AMAZON_ENDPOINT = 'discover:viewer:removeAmazonEndpointSubstring';

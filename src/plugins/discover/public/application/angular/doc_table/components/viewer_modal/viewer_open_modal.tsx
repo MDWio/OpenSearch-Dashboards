@@ -6,7 +6,7 @@
  * compatible open source license.
  */
 
-/* eslint-disable no-console */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
 /*
  * Licensed to Elasticsearch B.V. under one or more contributor
@@ -33,6 +33,8 @@
  */
 
 import {
+  EuiErrorBoundary,
+  EuiLoadingSpinner,
   EuiModal,
   EuiModalBody,
   EuiModalHeader,
@@ -61,14 +63,15 @@ export function ViewerOpenModal(props: Props) {
 
   const [state, setState] = useState('');
   const [src, setSrc] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const s3keys = getFileUrlsByFilenames([props.source.FileName]);
+  const s3keys = getFileUrlsByFilenames(props.source.FileName);
 
   useEffect(() => {
-    setState('loading');
-    getS3UrlFromPlatform(s3keys[0])
+    setState('gettingS3Links');
+    getS3UrlFromPlatform(s3keys)
       .then((res) => {
-        const parsedLink = String((res as any).link);
+        const parsedLinks = (res as any).link as string[];
 
         const parsedSource = parseSourceToIDicomJson(props.source);
         const stringSource = JSON.stringify(parsedSource);
@@ -76,32 +79,52 @@ export function ViewerOpenModal(props: Props) {
         const encodedUrl =
           `${uiSettings.get(VIEWER_URL)}/viewer?json=` +
           encodeURIComponent(stringSource) +
-          '&url=' +
-          encodeURIComponent(parsedLink);
+          '&images=' +
+          encodeURIComponent(JSON.stringify(parsedLinks));
 
         setSrc(encodedUrl);
-        setState('success');
+        setState('s3LinksRetrieved');
       })
       .catch((err) => {
-        console.error('Error:', err);
+        setErrorMsg(err);
         setState('error');
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // array must be empty to avoid infinite loop
 
+  function onViewerLoaded() {
+    setState('viewerLoaded');
+  }
+
+  const HttpApiError = () => {
+    throw new Error('While retrieving S3 links from Marketplace: ' + JSON.stringify(errorMsg));
+  };
+
   return (
-    <EuiOverlayMask>
-      <EuiModal className="osdViewerOpenModal" onClose={props.onClose}>
+    <EuiOverlayMask style="padding: 0">
+      <EuiModal maxWidth="false" onClose={props.onClose}>
         <EuiModalHeader>
-          <EuiModalHeaderTitle> View Dicom </EuiModalHeaderTitle>
+          <EuiModalHeaderTitle>
+            <span> View DICOM </span>
+            {state !== 'viewerLoaded' && state !== 'error' ? (
+              <EuiLoadingSpinner title="Loading OHIF Viewer" size="l" />
+            ) : (
+              ''
+            )}
+          </EuiModalHeaderTitle>
         </EuiModalHeader>
         <EuiModalBody>
           <div className="iframe-container">
-            {/* <div> {JSON.stringify(urls)} </div> */}
-            {state === 'loading' ? (
-              <h1> Loading... </h1>
+            {state === 'gettingS3Links' ? (
+              <h1> Getting links from S3... </h1>
+            ) : state === 'error' ? (
+              <h1>
+                <EuiErrorBoundary>
+                  <HttpApiError />
+                </EuiErrorBoundary>
+              </h1>
             ) : (
-              <iframe src={src} className="iframe" title="View DICOM" />
+              <iframe onLoad={onViewerLoaded} src={src} className="iframe" title="View DICOM" />
             )}
           </div>
         </EuiModalBody>
@@ -109,27 +132,35 @@ export function ViewerOpenModal(props: Props) {
     </EuiOverlayMask>
   );
 
-  function getFileUrlsByFilenames(filenames: string[]) {
+  function getFileUrlsByFilenames(fileNames: string[] | string) {
     const s3path = props.source.dicom_filepath.replace(
       `${uiSettings.get(REMOVE_AMAZON_ENDPOINT)}`,
       ''
     );
 
-    const fileUrls = filenames.map((filename) => {
-      return s3path + filename;
-    });
+    let fileUrls: string[];
+
+    // add s3 path to each file name
+    if (Array.isArray(fileNames)) {
+      fileUrls = fileNames.map((fileName) => {
+        return s3path + fileName;
+      });
+    } else {
+      fileUrls = [s3path + fileNames];
+    }
 
     return fileUrls;
   }
 
-  function getS3UrlFromPlatform(s3Key: string) {
+  function getS3UrlFromPlatform(s3Keys: string[]) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_AMAZON)}`;
 
       oReq.addEventListener('error', (error) => {
-        console.error('An error occurred while retrieving s3 keys from platform');
-        reject(error);
+        reject(
+          `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
+        );
       });
 
       oReq.addEventListener('load', () => {
@@ -138,19 +169,21 @@ export function ViewerOpenModal(props: Props) {
           reject(new Error('Response was undefined'));
         }
 
-        const data = JSON.parse(oReq.responseText);
-        console.log('data from req: ', data);
+        if (oReq.status === 401) {
+          reject('Authentication failed, please verify OPENSEARCH api token');
+        }
 
-        resolve({ link: data });
+        if (oReq.status !== 200) {
+          reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+        } else {
+          const data = JSON.parse(oReq.responseText);
+
+          resolve({ link: data });
+        }
       });
 
       console.info(`Sending Request to: ${url}`);
-      oReq.open(
-        'GET',
-        url +
-          `?pathToFile=${s3Key}` +
-          `&openSearchKey=${uiSettings.get(MARKETPLACE_API_SECRET_KEY)}`
-      );
+      oReq.open('GET', url + '?s3Keys=' + s3Keys + `&openSearchKey=OPENSEARCH_API_KEY`);
       oReq.setRequestHeader('Accept', 'application/json');
 
       oReq.send();
