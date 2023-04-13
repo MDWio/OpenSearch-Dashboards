@@ -183,7 +183,7 @@ export function ViewerOpenModal(props: Props) {
       });
 
       console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=OPENSEARCH_API_KEY`);
+      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(MARKETPLACE_API_SECRET_KEY)}`);
       oReq.setRequestHeader('Accept', 'application/json');
       oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
