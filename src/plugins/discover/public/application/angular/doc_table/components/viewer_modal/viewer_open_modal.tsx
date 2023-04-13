@@ -173,7 +173,7 @@ export function ViewerOpenModal(props: Props) {
           reject('Authentication failed, please verify OPENSEARCH api token');
         }
 
-        if (oReq.status !== 200) {
+        if (oReq.status !== 200 && oReq.status !== 201) {
           reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
         } else {
           const data = JSON.parse(oReq.responseText);
@@ -183,10 +183,11 @@ export function ViewerOpenModal(props: Props) {
       });
 
       console.info(`Sending Request to: ${url}`);
-      oReq.open('GET', url + '?s3Keys=' + s3Keys + `&openSearchKey=OPENSEARCH_API_KEY`);
+      oReq.open('POST', url + `?openSearchKey=OPENSEARCH_API_KEY`);
       oReq.setRequestHeader('Accept', 'application/json');
+      oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
-      oReq.send();
+      oReq.send(JSON.stringify({ s3Keys }));
     });
   }
 
