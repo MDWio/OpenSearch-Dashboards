@@ -101,8 +101,8 @@ export function ViewerOpenModal(props: Props) {
   };
 
   return (
-    <EuiOverlayMask style="padding: 0">
-      <EuiModal maxWidth="false" onClose={props.onClose}>
+    <EuiOverlayMask id="Overlay" style="padding: 0">
+      <EuiModal id="Modal" maxWidth="false" onClose={props.onClose}>
         <EuiModalHeader>
           <EuiModalHeaderTitle>
             <span> View DICOM </span>
