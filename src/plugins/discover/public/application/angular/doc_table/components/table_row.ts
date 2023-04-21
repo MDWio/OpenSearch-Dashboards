@@ -129,15 +129,15 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           document.body.removeChild(container);
         };
 
-        const saveModal = React.createElement(ViewerOpenModal, {
+        const viewerModal = React.createElement(ViewerOpenModal, {
           source: $scope.row._source,
-          title: 'OpenViewer',
+          title: 'View DICOM',
           onClose: closeModal,
         });
 
         const container = document.createElement('div');
         document.body.appendChild(container);
-        ReactDOM.render(saveModal, container);
+        ReactDOM.render(viewerModal, container);
       };
 
       $scope.$watchMulti(['indexPattern.timeFieldName', 'row.highlight', '[]columns'], () => {

@@ -12,16 +12,16 @@
   margin: 0;
   padding: 0;
 }
-#Overlay > div {
+#ViewerOverlay > div {
   height: 95%;
   width: 95%;
   overflow: auto
 }
-#Modal {
+#ViewerModal {
   height: 100%;
   width: 100%;
   overflow: auto
 }
-#Modal > div {
+#ViewerModal > div {
   min-height: -webkit-fill-available;
 }

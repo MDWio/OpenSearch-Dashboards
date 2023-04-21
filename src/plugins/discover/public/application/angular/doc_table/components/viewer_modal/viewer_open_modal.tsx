@@ -44,6 +44,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { getServices } from '../../../../../opensearch_dashboards_services';
 import { IDicomJson } from '../../../../../../common/IDicomJson';
+import { getS3KeysByFileNames } from '../../../../../../common/getS3KeysByFileNames';
 import {
   MARKETPLACE_API,
   MARKETPLACE_API_AMAZON,
@@ -65,7 +66,11 @@ export function ViewerOpenModal(props: Props) {
   const [src, setSrc] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const s3keys = getFileUrlsByFilenames(props.source.FileName);
+  const s3path = props.source.dicom_filepath.replace(
+    `${uiSettings.get(REMOVE_AMAZON_ENDPOINT)}`,
+    ''
+  );
+  const s3keys = getS3KeysByFileNames(props.source.FileName, s3path);
 
   useEffect(() => {
     setState('gettingS3Links');
@@ -101,11 +106,11 @@ export function ViewerOpenModal(props: Props) {
   };
 
   return (
-    <EuiOverlayMask id="Overlay" style="padding: 0">
-      <EuiModal id="Modal" maxWidth="false" onClose={props.onClose}>
+    <EuiOverlayMask id="ViewerOverlay" style="padding: 0">
+      <EuiModal id="ViewerModal" maxWidth="false" onClose={props.onClose}>
         <EuiModalHeader>
           <EuiModalHeaderTitle>
-            <span> View DICOM </span>
+            <span> {props.title} </span>
             {state !== 'viewerLoaded' && state !== 'error' ? (
               <EuiLoadingSpinner title="Loading OHIF Viewer" size="l" />
             ) : (
@@ -131,26 +136,6 @@ export function ViewerOpenModal(props: Props) {
       </EuiModal>
     </EuiOverlayMask>
   );
-
-  function getFileUrlsByFilenames(fileNames: string[] | string) {
-    const s3path = props.source.dicom_filepath.replace(
-      `${uiSettings.get(REMOVE_AMAZON_ENDPOINT)}`,
-      ''
-    );
-
-    let fileUrls: string[];
-
-    // add s3 path to each file name
-    if (Array.isArray(fileNames)) {
-      fileUrls = fileNames.map((fileName) => {
-        return s3path + fileName;
-      });
-    } else {
-      fileUrls = [s3path + fileNames];
-    }
-
-    return fileUrls;
-  }
 
   function getS3UrlFromPlatform(s3Keys: string[]) {
     return new Promise((resolve, reject) => {
