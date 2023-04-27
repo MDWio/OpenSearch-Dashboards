@@ -47,7 +47,7 @@ import { IDicomJson } from '../../../../../../common/IDicomJson';
 import { getS3KeysByFileNames } from '../../../../../../common/getS3KeysByFileNames';
 import {
   MARKETPLACE_API,
-  MARKETPLACE_API_AMAZON,
+  MARKETPLACE_API_AMAZON_LINKS,
   MARKETPLACE_API_OPENSEARCH_KEY,
   REMOVE_AMAZON_ENDPOINT,
   VIEWER_URL,
@@ -140,7 +140,9 @@ export function ViewerOpenModal(props: Props) {
   function getS3UrlFromPlatform(s3Keys: string[]) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
-      const url = `${uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_AMAZON)}`;
+      const url = `${
+        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_AMAZON_LINKS)
+      }`;
 
       oReq.addEventListener('error', (error) => {
         reject(

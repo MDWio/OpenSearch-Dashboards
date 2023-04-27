@@ -47,7 +47,7 @@ import {
   CONTEXT_TIE_BREAKER_FIELDS_SETTING,
   MODIFY_COLUMNS_ON_SWITCH,
   MARKETPLACE_API,
-  MARKETPLACE_API_AMAZON,
+  MARKETPLACE_API_AMAZON_LINKS,
   MARKETPLACE_API_OPENSEARCH_KEY,
   REMOVE_AMAZON_ENDPOINT,
   VIEWER_URL,
@@ -204,12 +204,12 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_AMAZON]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonTitle', {
+  [MARKETPLACE_API_AMAZON_LINKS]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonLinksTitle', {
       defaultMessage: 'Marketplace API URL for Amazon links',
     }),
-    value: '/api/amazon/dicom/links/get',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonText', {
+    value: '/api/opensearch/dicom/links/get',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonLinksText', {
       defaultMessage: 'Api for marketplace to get amazon links',
     }),
     category: ['discover'],
