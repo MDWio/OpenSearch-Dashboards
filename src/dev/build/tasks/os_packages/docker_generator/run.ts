@@ -55,7 +55,7 @@ export async function runDockerGenerator(
   // General docker var config
   const license = 'ASL 2.0';
   const imageFlavor = '';
-  const imageTag = 'opensearchproject/opensearch-dashboards';
+  const imageTag = 'nanoxmarketplace/opensearch-dashboards';
   const version = config.getBuildVersion();
   const artifactTarball = `opensearch-dashboards${imageFlavor}-${version}-linux-x64.tar.gz`;
   const artifactsDir = config.resolveFromTarget('.');
