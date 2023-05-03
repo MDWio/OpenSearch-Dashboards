@@ -36,15 +36,20 @@ import $ from 'jquery';
 import rison from 'rison-node';
 import '../../doc_viewer';
 
+import ng from 'angular';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import openRowHtml from './table_row/open.html';
 import detailsHtml from './table_row/details.html';
 
 import { dispatchRenderComplete, url } from '../../../../../../opensearch_dashboards_utils/public';
 import { DOC_HIDE_TIME_COLUMN_SETTING } from '../../../../../common';
 import cellTemplateHtml from '../components/table_row/cell.html';
+import cellViewerTemplateHtml from '../components/table_row/cell-viewer.html';
 import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_height.html';
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
+import { ViewerOpenModal } from './viewer_modal/viewer_open_modal';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -65,6 +70,7 @@ interface LazyScope extends ng.IScope {
 
 export function createTableRowDirective($compile: ng.ICompileService) {
   const cellTemplate = template(noWhiteSpace(cellTemplateHtml));
+  const cellViewerTemplate = template(noWhiteSpace(cellViewerTemplateHtml));
   const truncateByHeightTemplate = template(noWhiteSpace(truncateByHeightTemplateHtml));
 
   return {
@@ -115,6 +121,23 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         $detailsScope.uriEncodedId = encodeURIComponent($detailsScope.hit._id);
 
         $compile($detailsTr)($detailsScope);
+      };
+
+      $scope.openViewer = () => {
+        const closeModal = () => {
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container);
+        };
+
+        const viewerModal = React.createElement(ViewerOpenModal, {
+          source: $scope.row._source,
+          title: 'View DICOM',
+          onClose: closeModal,
+        });
+
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        ReactDOM.render(viewerModal, container);
       };
 
       $scope.$watchMulti(['indexPattern.timeFieldName', 'row.highlight', '[]columns'], () => {
@@ -183,6 +206,13 @@ export function createTableRowDirective($compile: ng.ICompileService) {
             })
           );
         });
+
+        newHtmls.push(
+          cellViewerTemplate({
+            sourcefield: false,
+            column: 'Action',
+          })
+        );
 
         let $cells = $el.children();
         newHtmls.forEach(function (html, i) {

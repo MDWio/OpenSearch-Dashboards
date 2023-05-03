@@ -46,6 +46,11 @@ import {
   CONTEXT_STEP_SETTING,
   CONTEXT_TIE_BREAKER_FIELDS_SETTING,
   MODIFY_COLUMNS_ON_SWITCH,
+  MARKETPLACE_API,
+  MARKETPLACE_API_AMAZON_LINKS,
+  MARKETPLACE_API_OPENSEARCH_KEY,
+  REMOVE_AMAZON_ENDPOINT,
+  VIEWER_URL,
 } from '../common';
 
 export const uiSettings: Record<string, UiSettingsParams> = {
@@ -187,5 +192,63 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     }),
     category: ['discover'],
     schema: schema.boolean(),
+  },
+  [MARKETPLACE_API]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceUrlTitle', {
+      defaultMessage: 'Marketplace DOMAIN',
+    }),
+    value: 'http://localhost:3000',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceUrlText', {
+      defaultMessage: 'Marketplace DOMAIN URL',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [MARKETPLACE_API_AMAZON_LINKS]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonLinksTitle', {
+      defaultMessage: 'Marketplace API URL for Amazon links',
+    }),
+    value: '/api/opensearch/dicom/links/get',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonLinksText', {
+      defaultMessage: 'Api for marketplace to get amazon links',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [MARKETPLACE_API_OPENSEARCH_KEY]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiKeyTitle', {
+      defaultMessage: 'Marketplace API Key',
+    }),
+    value: 'SET_API_KEY',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiKeyText', {
+      defaultMessage: 'API key for marketplace',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [VIEWER_URL]: {
+    name: i18n.translate('discover.advancedSettings.viewer.viewerUrlTitle', {
+      defaultMessage: 'OHIF Viewer',
+    }),
+    value: 'http://localhost:3500',
+    description: i18n.translate('discover.advancedSettings.viewer.viewerUrlText', {
+      defaultMessage: 'Url to OHIF viewer',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [REMOVE_AMAZON_ENDPOINT]: {
+    name: i18n.translate('discover.advancedSettings.viewer.removeAmazonEndpointSubstringTitle', {
+      defaultMessage: 'Amazon DOMAIN substring',
+    }),
+    value: 's3://example.amazon.domain/',
+    description: i18n.translate(
+      'discover.advancedSettings.viewer.removeAmazonEndpointSubstringText',
+      {
+        defaultMessage: 'Substring that will be removed from every dicom_filepath',
+      }
+    ),
+    category: ['discover'],
+    schema: schema.string(),
   },
 };

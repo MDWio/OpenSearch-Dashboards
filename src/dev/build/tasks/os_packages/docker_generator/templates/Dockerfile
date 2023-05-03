@@ -34,7 +34,6 @@ RUN tar --strip-components=1 -zxf /opt/{{artifactTarball}}
 # OpenShift does this, for example.
 # REF: https://docs.openshift.org/latest/creating_images/guidelines.html
 RUN chmod -R g=u /usr/share/opensearch-dashboards
-RUN find /usr/share/opensearch-dashboards -type d -exec chmod g+s {} \;
 
 ################################################################################
 # Build stage 1 (the actual OpenSearch Dashboards image):
@@ -130,6 +129,7 @@ RUN mkdir /licenses && \
 {{/ubi}}
 
 USER opensearch-dashboards
+RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install [URL_TO_PLUGIN_ZIP]
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 

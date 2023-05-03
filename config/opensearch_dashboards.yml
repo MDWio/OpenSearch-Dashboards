@@ -165,3 +165,34 @@
 # Set the value of this setting to true to capture region blocked warnings and errors 
 # for your map rendering services.
 # map.showRegionBlockedWarning: false
+
+server.host: 'localhost'
+
+opensearch.hosts: ['OPENSEARCH_HOST']
+
+# opensearch.ssl.verificationMode: none # if not using HTTPS
+
+opensearch_security.auth.type: basicauth
+opensearch_security.auth.anonymous_auth_enabled: false
+opensearch_security.cookie.secure: false # set to true when using HTTPS
+opensearch_security.cookie.ttl: 3600000
+opensearch_security.session.ttl: 3600000
+opensearch_security.session.keepalive: false
+opensearch_security.multitenancy.enabled: false
+opensearch_security.readonly_mode.roles: [opensearch_dashboards_read_only']
+opensearch_security.auth.unauthenticated_routes: []
+opensearch_security.basicauth.login.title: 'Please log in using your username and password'
+
+opensearch.username: 'OPENSEARCH_USERNAME'
+opensearch.password: 'OPENSEARCH_PASSWORD'
+opensearch.requestHeadersWhitelist: [ authorization, securitytenant, security_tenant ]
+
+# server.cors: true is normally the default value but required in case you you need to access Opensearch from JS code (e.g. XHR requests) along with the opensearch configuration next section.
+server.cors: true
+
+csp.strict: false
+csp.warnLegacyBrowsers: false
+csp.rules:
+  - "script-src 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com/ https://d3js.org/ https://cdn.jsdelivr.net/ https://cdnjs.cloudflare.com/ https://cdn.datatables.net/ 'self'"
+  - "worker-src blob: *"
+  - "child-src data: * blob: *"
