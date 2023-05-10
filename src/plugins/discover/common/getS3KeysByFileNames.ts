@@ -17,3 +17,8 @@ export function getS3KeysByFileNames(fileNames: string[] | string, s3path: strin
 
   return fileUrls;
 }
+
+export interface IDicomFile {
+  url: string;
+  seriesInstanceUID: string;
+}
