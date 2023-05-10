@@ -235,6 +235,7 @@ export function DiscoverLegacy({
                   <SkipBottomButton onClick={onSkipBottomButtonClick} />
                   <HitsCounter
                     hits={hits > 0 ? hits : 0}
+                    rows={rows}
                     showResetButton={!!(savedSearch && savedSearch.id)}
                     onResetQuery={resetQuery}
                   />

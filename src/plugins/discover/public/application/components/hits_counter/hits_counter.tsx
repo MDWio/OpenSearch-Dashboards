@@ -33,7 +33,9 @@ import React from 'react';
 import { EuiButtonEmpty, EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
 import { FormattedMessage, I18nProvider } from '@osd/i18n/react';
 import { i18n } from '@osd/i18n';
+import ReactDOM from 'react-dom';
 import { formatNumWithCommas } from '../../helpers';
+import { ArchiverOpenModal } from '../../angular/doc_table/components/archiver_modal/archiver_open_modal';
 
 export interface HitsCounterProps {
   /**
@@ -45,12 +47,33 @@ export interface HitsCounterProps {
    */
   showResetButton: boolean;
   /**
+   * objects for archiving
+   */
+  rows: any;
+  /**
    * resets the query
    */
   onResetQuery: () => void;
 }
 
-export function HitsCounter({ hits, showResetButton, onResetQuery }: HitsCounterProps) {
+export function HitsCounter({ hits, showResetButton, rows, onResetQuery }: HitsCounterProps) {
+  function openArchiver() {
+    const closeModal = () => {
+      ReactDOM.unmountComponentAtNode(container);
+      document.body.removeChild(container);
+    };
+
+    const archiverModal = React.createElement(ArchiverOpenModal, {
+      rows,
+      title: 'Explore Studies',
+      onClose: closeModal,
+    });
+
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    ReactDOM.render(archiverModal, container);
+  }
+
   return (
     <I18nProvider>
       <EuiFlexGroup
@@ -70,6 +93,9 @@ export function HitsCounter({ hits, showResetButton, onResetQuery }: HitsCounter
                 hits,
               }}
             />
+            <EuiButtonEmpty size="xs" onClick={openArchiver}>
+              Explore
+            </EuiButtonEmpty>
           </EuiText>
         </EuiFlexItem>
         {showResetButton && (

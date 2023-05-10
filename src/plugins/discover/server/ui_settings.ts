@@ -48,8 +48,10 @@ import {
   MODIFY_COLUMNS_ON_SWITCH,
   MARKETPLACE_API,
   MARKETPLACE_API_AMAZON_LINKS,
+  MARKETPLACE_API_AMAZON_ARCHIVE,
   MARKETPLACE_API_OPENSEARCH_KEY,
   REMOVE_AMAZON_ENDPOINT,
+  AMAZON_S3_ARCHIVE_PATH,
   VIEWER_URL,
 } from '../common';
 
@@ -215,6 +217,20 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.string(),
   },
+  [MARKETPLACE_API_AMAZON_ARCHIVE]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonArchiveTitle', {
+      defaultMessage: 'Marketplace API URL for Amazon archiver',
+    }),
+    value: '/api/opensearch/archive/link/get',
+    description: i18n.translate(
+      'discover.advancedSettings.viewer.marketplaceApiAmazonArchiveText',
+      {
+        defaultMessage: 'Api for marketplace to get link for zip archive',
+      }
+    ),
+    category: ['discover'],
+    schema: schema.string(),
+  },
   [MARKETPLACE_API_OPENSEARCH_KEY]: {
     name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiKeyTitle', {
       defaultMessage: 'Marketplace API Key',
@@ -248,6 +264,17 @@ export const uiSettings: Record<string, UiSettingsParams> = {
         defaultMessage: 'Substring that will be removed from every dicom_filepath',
       }
     ),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [AMAZON_S3_ARCHIVE_PATH]: {
+    name: i18n.translate('discover.advancedSettings.amazons3:archivePathTitle', {
+      defaultMessage: 'Archive path storing',
+    }),
+    value: '/OSD_ARCHIVES/',
+    description: i18n.translate('discover.advancedSettings.amazons3:archivePathText', {
+      defaultMessage: 'Path to folder where archive will be stored in Amazon S3',
+    }),
     category: ['discover'],
     schema: schema.string(),
   },
