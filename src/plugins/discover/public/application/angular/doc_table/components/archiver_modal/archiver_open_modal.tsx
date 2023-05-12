@@ -94,7 +94,6 @@ export function ArchiverOpenModal(props: Props) {
 
     getArchiveLinkFromPlatform()
       .then((res) => {
-        console.log(res);
         const result = JSON.parse((res as any).response);
         setStatus(EStatus.SUCCESS);
         setResponseMessage(result.archiveLink);
@@ -240,6 +239,7 @@ export function ArchiverOpenModal(props: Props) {
       archivePath: archiveS3Path,
       email,
       archiveName,
+      s3domain,
       studies: [],
     };
 

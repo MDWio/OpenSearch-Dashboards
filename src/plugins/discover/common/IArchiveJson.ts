@@ -7,6 +7,7 @@ export interface IArchiveJson {
   email?: string;
   archiveName: string;
   archivePath: string;
+  s3domain: string;
   studies: IStudyJson[];
 }
 

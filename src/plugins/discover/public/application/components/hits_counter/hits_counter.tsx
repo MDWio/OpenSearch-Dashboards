@@ -36,6 +36,7 @@ import { i18n } from '@osd/i18n';
 import ReactDOM from 'react-dom';
 import { formatNumWithCommas } from '../../helpers';
 import { ArchiverOpenModal } from '../../angular/doc_table/components/archiver_modal/archiver_open_modal';
+import { IRow } from '../../../../common/IRow';
 
 export interface HitsCounterProps {
   /**
@@ -49,7 +50,7 @@ export interface HitsCounterProps {
   /**
    * objects for archiving
    */
-  rows: any;
+  rows: IRow;
   /**
    * resets the query
    */

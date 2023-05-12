@@ -7,6 +7,8 @@
  * compatible open source license.
  */
 
+/* eslint-disable no-shadow */
+
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
 /*
@@ -53,9 +55,10 @@ import {
   REMOVE_AMAZON_ENDPOINT,
   VIEWER_URL,
 } from '../../../../../../common';
+import { ISource } from '../../../../../../common/IRow';
 
 interface Props {
-  source: any;
+  source: ISource;
   onClose: () => void;
   title: string;
 }
@@ -67,7 +70,10 @@ export function ViewerOpenModal(props: Props) {
   const [src, setSrc] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const s3path = props.source.dicom_filepath.replace(`s3://archive.nanox.vision/`, '');
+  const s3path = props.source.dicom_filepath.replace(
+    `${uiSettings.get(REMOVE_AMAZON_ENDPOINT)}`,
+    ''
+  );
 
   useEffect(() => {
     setState('gettingS3Links');
@@ -134,7 +140,7 @@ export function ViewerOpenModal(props: Props) {
     </EuiOverlayMask>
   );
 
-  function getS3UrlFromPlatform(fileNames: string, s3path: string) {
+  function getS3UrlFromPlatform(fileNames: string[], s3path: string) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${
@@ -177,7 +183,7 @@ export function ViewerOpenModal(props: Props) {
     });
   }
 
-  function parseSourceToIDicomJson(source: any) {
+  function parseSourceToIDicomJson(source: ISource) {
     const example: IDicomJson = {
       studies: [
         {
