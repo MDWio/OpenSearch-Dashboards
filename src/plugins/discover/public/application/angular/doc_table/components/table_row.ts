@@ -6,6 +6,10 @@
  * compatible open source license.
  */
 
+/* eslint-disable no-console */
+
+/* eslint-disable no-unsanitized/property */
+
 /*
  * Licensed to Elasticsearch B.V. under one or more contributor
  * license agreements. See the NOTICE file distributed with
@@ -39,13 +43,23 @@ import '../../doc_viewer';
 import ng from 'angular';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { IArchiveJson } from 'src/plugins/discover/common/IArchiveJson';
 import openRowHtml from './table_row/open.html';
 import detailsHtml from './table_row/details.html';
 
 import { dispatchRenderComplete, url } from '../../../../../../opensearch_dashboards_utils/public';
-import { DOC_HIDE_TIME_COLUMN_SETTING } from '../../../../../common';
+import {
+  DOC_HIDE_TIME_COLUMN_SETTING,
+  MARKETPLACE_API,
+  MARKETPLACE_API_ARCHIVE_LINK,
+  MARKETPLACE_API_OPENSEARCH_KEY,
+  AMAZON_S3_ARCHIVE_PATH,
+  REMOVE_AMAZON_ENDPOINT,
+} from '../../../../../common';
 import cellTemplateHtml from '../components/table_row/cell.html';
-import cellViewerTemplateHtml from '../components/table_row/cell-viewer.html';
+import cellActionsTemplateHtml from '../components/table_row/cell-actions.html';
+import downloadTemplateHtml from '../components/table_row/download.html';
+import loaderTemplateHtml from '../components/table_row/loader.html';
 import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_height.html';
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
@@ -69,8 +83,11 @@ interface LazyScope extends ng.IScope {
 }
 
 export function createTableRowDirective($compile: ng.ICompileService) {
+  const uiSettings = getServices().uiSettings;
+  const toastNotifications = getServices().toastNotifications;
+
   const cellTemplate = template(noWhiteSpace(cellTemplateHtml));
-  const cellViewerTemplate = template(noWhiteSpace(cellViewerTemplateHtml));
+  const cellActionsTemplate = template(noWhiteSpace(cellActionsTemplateHtml));
   const truncateByHeightTemplate = template(noWhiteSpace(truncateByHeightTemplateHtml));
 
   return {
@@ -138,6 +155,35 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         const container = document.createElement('div');
         document.body.appendChild(container);
         ReactDOM.render(viewerModal, container);
+      };
+
+      $scope.downloadStudy = () => {
+        const downloadButton = document.getElementById(`${$scope.row._id}`);
+
+        if (downloadButton) {
+          downloadButton.replaceChildren('');
+          downloadButton.innerHTML = loaderTemplateHtml;
+
+          getArchiveLinkFromPlatform($scope.row._source)
+            .then((res) => {
+              downloadButton.replaceChildren('');
+              downloadButton.innerHTML = downloadTemplateHtml;
+
+              const result = JSON.parse((res as any).response);
+              const newLink = document.createElement('a');
+              newLink.href = result.archiveLink;
+              newLink.click();
+            })
+            .catch((err) => {
+              downloadButton.replaceChildren('');
+              downloadButton.innerHTML = downloadTemplateHtml;
+
+              toastNotifications.addDanger({
+                title: 'Error while downloading study',
+                text: err,
+              });
+            });
+        }
       };
 
       $scope.$watchMulti(['indexPattern.timeFieldName', 'row.highlight', '[]columns'], () => {
@@ -208,8 +254,8 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         });
 
         newHtmls.push(
-          cellViewerTemplate({
-            sourcefield: false,
+          cellActionsTemplate({
+            downloadButtonName: row._id,
             column: 'Action',
           })
         );
@@ -264,6 +310,76 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         }
 
         return text;
+      }
+
+      function getArchiveLinkFromPlatform(rowSource: any) {
+        return new Promise((resolve, reject) => {
+          const oReq = new XMLHttpRequest();
+          const urlPlatform = `${
+            uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_LINK)
+          }`;
+
+          oReq.addEventListener('error', (error) => {
+            reject(
+              `The url: '${urlPlatform}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
+            );
+          });
+
+          oReq.addEventListener('load', () => {
+            if (!oReq.responseText) {
+              console.warn('Response was undefined');
+              reject(new Error('Response was undefined'));
+            }
+
+            if (oReq.status === 401) {
+              reject('Authentication failed, please verify OPENSEARCH api token');
+            }
+
+            if (oReq.status !== 200 && oReq.status !== 201) {
+              reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+            } else {
+              resolve({ response: oReq.responseText });
+            }
+          });
+
+          console.info(`Sending Request to: ${urlPlatform}`);
+          oReq.open(
+            'POST',
+            urlPlatform + `?openSearchKey=${uiSettings.get(MARKETPLACE_API_OPENSEARCH_KEY)}`
+          );
+          oReq.setRequestHeader('Accept', 'application/json');
+          oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+          const replacedS3Domain = uiSettings.get(REMOVE_AMAZON_ENDPOINT);
+          const body = composeBodyFromRow(rowSource, replacedS3Domain);
+
+          oReq.send(JSON.stringify(body));
+        });
+      }
+
+      function composeBodyFromRow(rowSource: any, s3domain: string) {
+        const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
+        const archiveName = rowSource.StudyInstanceUID;
+
+        const body: IArchiveJson = {
+          archivePath: archiveS3Path + '/studies/',
+          archiveName,
+          s3domain,
+          studies: [],
+        };
+
+        const s3Path = rowSource.dicom_filepath.replace(s3domain, '');
+        const fileNames = Array.isArray(rowSource.FileName)
+          ? rowSource.FileName
+          : [rowSource.FileName];
+
+        body.studies.push({
+          studyInstanceUid: rowSource.StudyInstanceUID,
+          s3Path,
+          fileNames,
+        });
+
+        return body;
       }
     },
   };

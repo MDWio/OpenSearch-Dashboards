@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 /*
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -6,6 +5,8 @@
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
  */
+
+/* eslint-disable no-console */
 
 /* eslint-disable no-shadow */
 
@@ -50,7 +51,7 @@ import { IDicomJson } from '../../../../../../common/IDicomJson';
 import { IDicomFile } from '../../../../../../common/getS3KeysByFileNames';
 import {
   MARKETPLACE_API,
-  MARKETPLACE_API_AMAZON_LINKS,
+  MARKETPLACE_API_LINKS,
   MARKETPLACE_API_OPENSEARCH_KEY,
   REMOVE_AMAZON_ENDPOINT,
   VIEWER_URL,
@@ -143,9 +144,7 @@ export function ViewerOpenModal(props: Props) {
   function getS3UrlFromPlatform(fileNames: string[], s3path: string) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
-      const url = `${
-        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_AMAZON_LINKS)
-      }`;
+      const url = `${uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_LINKS)}`;
 
       oReq.addEventListener('error', (error) => {
         reject(
