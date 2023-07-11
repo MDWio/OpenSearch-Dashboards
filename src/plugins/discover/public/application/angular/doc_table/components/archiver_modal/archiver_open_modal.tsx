@@ -130,7 +130,13 @@ export function ArchiverOpenModal(props: Props) {
 
           if (archivingProcessObj.status === EArchiveProcessStatus.COMPLETED) {
             setArchiveLink(archivingProcessObj.archiveLink);
-            setExpirationDate(archivingProcessObj.expirationDate);
+
+            if (archivingProcessObj.expirationDate) {
+              const parsedDate = new Date(archivingProcessObj.expirationDate);
+              if (parsedDate) {
+                setExpirationDate(parsedDate.toLocaleDateString());
+              }
+            }
           } else if (archivingProcessObj.status === EArchiveProcessStatus.FAILED) {
             setErrorMessage(archivingProcessObj.errorMessage);
           } else {
@@ -498,11 +504,12 @@ export function ArchiverOpenModal(props: Props) {
   }
 
   function composeBodyFromRows(s3domain: string) {
-    const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
+
+    const emailField = email || undefined;
 
     const body: IArchiveJson = {
       archivePath: archiveS3Path,
-      email,
+      email: emailField,
       archiveName,
       s3domain,
       studies: [],
