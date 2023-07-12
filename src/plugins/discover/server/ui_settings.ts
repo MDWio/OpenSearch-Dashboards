@@ -261,7 +261,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveProcessPostTitle', {
       defaultMessage: 'Marketplace API URL for creating Amazon archiver process',
     }),
-    value: '/api/opensearch/archive/process/post',
+    value: '/api/opensearch/archive/process/create',
     description: i18n.translate(
       'discover.advancedSettings.viewer.marketplaceApiArchiveProcessPostText',
       {
