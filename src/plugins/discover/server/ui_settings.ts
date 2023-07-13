@@ -51,7 +51,7 @@ import {
   MARKETPLACE_API_LINKS,
   MARKETPLACE_API_ARCHIVE_LINK,
   MARKETPLACE_API_ARCHIVE_PROCESS_GET,
-  MARKETPLACE_API_ARCHIVE_PROCESS_POST,
+  MARKETPLACE_API_ARCHIVE_PROCESS_CREATE,
   MARKETPLACE_DEV_API_OPENSEARCH_KEY,
   MARKETPLACE_API_OPENSEARCH_KEY,
   REMOVE_AMAZON_ENDPOINT,
@@ -257,13 +257,16 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_ARCHIVE_PROCESS_POST]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveProcessPostTitle', {
-      defaultMessage: 'Marketplace API URL for creating Amazon archiver process',
-    }),
+  [MARKETPLACE_API_ARCHIVE_PROCESS_CREATE]: {
+    name: i18n.translate(
+      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessCreateTitle',
+      {
+        defaultMessage: 'Marketplace API URL for creating Amazon archiver process',
+      }
+    ),
     value: '/api/opensearch/archive/process/create',
     description: i18n.translate(
-      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessPostText',
+      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessCreateText',
       {
         defaultMessage: 'Api for Marketplace to create process of archiving',
       }

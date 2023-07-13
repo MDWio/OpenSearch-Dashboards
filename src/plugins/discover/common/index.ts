@@ -47,8 +47,8 @@ export const MARKETPLACE_API_LINKS = 'discover:viewer:marketplaceApiLinks';
 export const MARKETPLACE_API_ARCHIVE_LINK = 'discover:archiver:marketplaceApiArchiveLink';
 export const MARKETPLACE_API_ARCHIVE_PROCESS_GET =
   'discover:archiver:marketplaceApiArchiveProcessGet';
-export const MARKETPLACE_API_ARCHIVE_PROCESS_POST =
-  'discover:archiver:marketplaceApiArchiveProcessPost';
+export const MARKETPLACE_API_ARCHIVE_PROCESS_CREATE =
+  'discover:archiver:marketplaceApiArchiveProcessCreate';
 export const MARKETPLACE_API_OPENSEARCH_KEY = 'discover:viewer:marketplaceApiKey';
 export const MARKETPLACE_DEV_API_OPENSEARCH_KEY = 'discover:viewer:marketplaceDevApiKey';
 export const VIEWER_URL = 'discover:viewer:viewerUrl';

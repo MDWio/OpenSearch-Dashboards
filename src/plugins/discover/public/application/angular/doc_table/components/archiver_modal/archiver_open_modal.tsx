@@ -60,7 +60,7 @@ import {
   SAMPLE_SIZE_SETTING,
   MARKETPLACE_API,
   MARKETPLACE_API_ARCHIVE_PROCESS_GET,
-  MARKETPLACE_API_ARCHIVE_PROCESS_POST,
+  MARKETPLACE_API_ARCHIVE_PROCESS_CREATE,
   MARKETPLACE_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   REMOVE_AMAZON_ENDPOINT,
@@ -168,7 +168,7 @@ export function ArchiverOpenModal(props: Props) {
   const startArchiving = async () => {
     setRequestStatus(EArchiveRequestStatus.LOADING);
 
-    postArchiveProcessToPlatform()
+    createArchiveProcessToPlatform()
       .then((res) => {
         const result = JSON.parse((res as any).response);
         setRequestStatus(EArchiveRequestStatus.SUCCESS);
@@ -416,7 +416,7 @@ export function ArchiverOpenModal(props: Props) {
     );
   }
 
-  function postArchiveProcessToPlatform() {
+  function createArchiveProcessToPlatform() {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${
