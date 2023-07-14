@@ -82,7 +82,7 @@ export function ArchiverOpenModal(props: Props) {
   }
 
   enum EArchiveProcessStatus {
-    NONE = 'NONE',
+    NOT_SUBMITTED = 'NOT_SUBMITTED',
     PENDING = 'PENDING',
     DOWNLOADING = 'DOWNLOADING',
     ARCHIVING = 'ARCHIVING',
@@ -113,7 +113,7 @@ export function ArchiverOpenModal(props: Props) {
 
   // Api fields
   const [requestStatus, setRequestStatus] = useState(EArchiveRequestStatus.UNKNOWN);
-  const [archiveStatus, setArchiveStatus] = useState(EArchiveProcessStatus.NONE);
+  const [archiveStatus, setArchiveStatus] = useState(EArchiveProcessStatus.NOT_SUBMITTED);
   const [requestUid, setRequestUid] = useState('');
   const [loopMutex, setLoopMutex] = useState(true);
   const [archiveLink, setArchiveLink] = useState('');
