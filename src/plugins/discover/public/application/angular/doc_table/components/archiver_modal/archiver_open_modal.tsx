@@ -420,7 +420,7 @@ export function ArchiverOpenModal(props: Props) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${
-        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_PROCESS_POST)
+        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_PROCESS_CREATE)
       }`;
 
       oReq.addEventListener('error', (error) => {
@@ -504,7 +504,7 @@ export function ArchiverOpenModal(props: Props) {
   }
 
   function composeBodyFromRows(s3domain: string) {
-
+    const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
     const emailField = email || undefined;
 
     const body: IArchiveJson = {
