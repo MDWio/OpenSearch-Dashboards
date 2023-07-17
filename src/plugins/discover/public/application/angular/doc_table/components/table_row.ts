@@ -373,9 +373,14 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           ? rowSource.FileName
           : [rowSource.FileName];
 
+        const reportPath = rowSource.report_filepath
+          ? rowSource.report_filepath.replace(s3domain, '')
+          : undefined;
+
         body.studies.push({
           studyInstanceUid: rowSource.StudyInstanceUID,
           s3Path,
+          reportPath,
           fileNames,
         });
 

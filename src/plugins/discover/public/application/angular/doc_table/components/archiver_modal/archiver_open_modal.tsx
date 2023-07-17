@@ -526,9 +526,14 @@ export function ArchiverOpenModal(props: Props) {
         ? study.source.FileName
         : [study.source.FileName];
 
+      const reportPath = study.source.report_filepath
+        ? study.source.report_filepath.replace(s3domain, '')
+        : undefined;
+
       body.studies.push({
         studyInstanceUid: study.source.StudyInstanceUID,
         s3Path,
+        reportPath,
         fileNames,
       });
     }
