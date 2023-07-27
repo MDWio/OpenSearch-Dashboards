@@ -128,8 +128,11 @@ RUN mkdir /licenses && \
     cp LICENSE.txt /licenses/LICENSE
 {{/ubi}}
 
+RUN chmod +x /usr/local/bin/opensearch-dashboards-docker
+
 USER opensearch-dashboards
-RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install [URL_TO_PLUGIN_ZIP]
+RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install [URL_TO_SECURITY_PLUGIN_ZIP]
+RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install [URL_TO_REPORTING_PLUGIN_ZIP]
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
