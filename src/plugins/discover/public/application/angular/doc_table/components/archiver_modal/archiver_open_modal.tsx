@@ -120,6 +120,8 @@ export function ArchiverOpenModal(props: Props) {
   const [errorMessage, setErrorMessage] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
 
+  const [delayInMs, setDelayInMs] = useState(2500);
+
   const getArchiveStatus = async () => {
     if (ARCHIVE_PROCESS_ACTIVE_STATUSES.includes(archiveStatus)) {
       getArchiveProcessFromPlatform()
@@ -140,7 +142,7 @@ export function ArchiverOpenModal(props: Props) {
           } else if (archivingProcessObj.status === EArchiveProcessStatus.FAILED) {
             setErrorMessage(archivingProcessObj.errorMessage);
           } else {
-            delay(2500).then(() => {
+            delay(delayInMs).then(() => {
               setLoopMutex(!loopMutex);
             });
           }
@@ -170,6 +172,7 @@ export function ArchiverOpenModal(props: Props) {
 
     createArchiveProcessToPlatform()
       .then((res) => {
+        setDelayInMs(getMsDelayByFilesAmount());
         const result = JSON.parse((res as any).response);
         setRequestStatus(EArchiveRequestStatus.SUCCESS);
         setArchiveStatus(EArchiveProcessStatus.PENDING);
@@ -440,7 +443,12 @@ export function ArchiverOpenModal(props: Props) {
         }
 
         if (oReq.status !== 200 && oReq.status !== 201) {
-          reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+          try {
+            const parsedResponseText = JSON.parse(oReq.responseText);
+            reject(`${parsedResponseText.message}`);
+          } catch {
+            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+          }
         } else {
           resolve({ response: oReq.responseText });
         }
@@ -482,7 +490,12 @@ export function ArchiverOpenModal(props: Props) {
         }
 
         if (oReq.status !== 200 && oReq.status !== 201) {
-          reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+          try {
+            const parsedResponseText = JSON.parse(oReq.responseText);
+            reject(`${parsedResponseText.message}`);
+          } catch {
+            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+          }
         } else {
           resolve({ response: oReq.responseText });
         }
@@ -539,5 +552,17 @@ export function ArchiverOpenModal(props: Props) {
     }
 
     return body;
+  }
+
+  function getMsDelayByFilesAmount() {
+    if (filesAmount < 10) {
+      return 2500;
+    } else if (filesAmount < 50) {
+      return 3500;
+    } else if (filesAmount < 100) {
+      return 5000;
+    } else {
+      return 10000;
+    }
   }
 }
