@@ -6,6 +6,8 @@
  * compatible open source license.
  */
 
+/* eslint-disable react-hooks/exhaustive-deps */
+
 /* eslint-disable no-console */
 
 /*
@@ -39,21 +41,26 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
+  EuiIcon,
+  EuiLoadingSpinner,
   EuiModal,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiOverlayMask,
   EuiSpacer,
+  EuiTextColor,
 } from '@elastic/eui';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { setTimeout } from 'timers';
 import { IArchiveJson } from '../../../../../../common/IArchiveJson';
 
 import { getServices } from '../../../../../opensearch_dashboards_services';
 import {
   SAMPLE_SIZE_SETTING,
   MARKETPLACE_API,
-  MARKETPLACE_API_AMAZON_ARCHIVE,
+  MARKETPLACE_API_ARCHIVE_PROCESS_GET,
+  MARKETPLACE_API_ARCHIVE_PROCESS_CREATE,
   MARKETPLACE_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   REMOVE_AMAZON_ENDPOINT,
@@ -67,41 +74,114 @@ interface Props {
 
 export function ArchiverOpenModal(props: Props) {
   const uiSettings = getServices().uiSettings;
-  enum EStatus {
+  enum EArchiveRequestStatus {
     UNKNOWN = 'Unknown',
     LOADING = 'Loading...',
     ERROR = 'Error',
     SUCCESS = 'Success',
   }
 
+  enum EArchiveProcessStatus {
+    NOT_SUBMITTED = 'NOT_SUBMITTED',
+    PENDING = 'PENDING',
+    DOWNLOADING = 'DOWNLOADING',
+    ARCHIVING = 'ARCHIVING',
+    UPLOADING = 'UPLOADING',
+    COMPLETED = 'COMPLETED',
+    FAILED = 'FAILED',
+  }
+
+  const ARCHIVE_PROCESS_ACTIVE_STATUSES = [
+    EArchiveProcessStatus.PENDING,
+    EArchiveProcessStatus.DOWNLOADING,
+    EArchiveProcessStatus.ARCHIVING,
+    EArchiveProcessStatus.UPLOADING,
+  ];
+
+  const ARCHIVE_PROCESS_VISIBLE_STATUSES = [
+    EArchiveProcessStatus.PENDING,
+    EArchiveProcessStatus.DOWNLOADING,
+    EArchiveProcessStatus.ARCHIVING,
+    EArchiveProcessStatus.UPLOADING,
+    EArchiveProcessStatus.COMPLETED,
+  ];
+
   // Forms attributes
   const [archiveName, setArchiveName] = useState('');
   const [filesAmount, setFilesAmount] = useState(1);
   const [email, setEmail] = useState('');
 
-  const [status, setStatus] = useState(EStatus.UNKNOWN);
-  const [responseMessage, setResponseMessage] = useState('');
+  // Api fields
+  const [requestStatus, setRequestStatus] = useState(EArchiveRequestStatus.UNKNOWN);
+  const [archiveStatus, setArchiveStatus] = useState(EArchiveProcessStatus.NOT_SUBMITTED);
+  const [requestUid, setRequestUid] = useState('');
+  const [loopMutex, setLoopMutex] = useState(true);
+  const [archiveLink, setArchiveLink] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
+
+  const [delayInMs, setDelayInMs] = useState(2500);
+
+  const getArchiveStatus = async () => {
+    if (ARCHIVE_PROCESS_ACTIVE_STATUSES.includes(archiveStatus)) {
+      getArchiveProcessFromPlatform()
+        .then((res) => {
+          const archivingProcess = (res as any).response;
+          const archivingProcessObj = JSON.parse(archivingProcess);
+          setArchiveStatus(archivingProcessObj.status as EArchiveProcessStatus);
+
+          if (archivingProcessObj.status === EArchiveProcessStatus.COMPLETED) {
+            setArchiveLink(archivingProcessObj.archiveLink);
+
+            if (archivingProcessObj.expirationDate) {
+              const parsedDate = new Date(archivingProcessObj.expirationDate);
+              if (parsedDate) {
+                setExpirationDate(parsedDate.toLocaleDateString());
+              }
+            }
+          } else if (archivingProcessObj.status === EArchiveProcessStatus.FAILED) {
+            setErrorMessage(archivingProcessObj.errorMessage);
+          } else {
+            delay(delayInMs).then(() => {
+              setLoopMutex(!loopMutex);
+            });
+          }
+        })
+        .catch((err) => {
+          setRequestStatus(EArchiveRequestStatus.ERROR);
+          setErrorMessage(err);
+        });
+    } else {
+      setRequestUid('');
+    }
+  };
+
+  useEffect(() => {
+    if (requestUid) {
+      getArchiveStatus();
+    }
+  }, [loopMutex]);
 
   const maxRows =
     uiSettings.get(SAMPLE_SIZE_SETTING) > props.rows.length
       ? props.rows.length
       : uiSettings.get(SAMPLE_SIZE_SETTING);
 
-  const getLinks = async () => {
-    setStatus(EStatus.LOADING);
-    setResponseMessage('');
+  const startArchiving = async () => {
+    setRequestStatus(EArchiveRequestStatus.LOADING);
 
-    getArchiveLinkFromPlatform()
+    createArchiveProcessToPlatform()
       .then((res) => {
+        setDelayInMs(getMsDelayByFilesAmount());
         const result = JSON.parse((res as any).response);
-        setStatus(EStatus.SUCCESS);
-        setResponseMessage(result.archiveLink);
-        setExpirationDate(result.expirationDate);
+        setRequestStatus(EArchiveRequestStatus.SUCCESS);
+        setArchiveStatus(EArchiveProcessStatus.PENDING);
+        setRequestUid(result.requestUid);
+        setLoopMutex(!loopMutex);
       })
       .catch((err) => {
-        setStatus(EStatus.ERROR);
-        setResponseMessage(err);
+        setRequestStatus(EArchiveRequestStatus.ERROR);
+        setErrorMessage(err);
       });
   };
 
@@ -157,44 +237,193 @@ export function ArchiverOpenModal(props: Props) {
 
           <EuiSpacer />
 
-          <EuiFlexGroup responsive={false} wrap gutterSize="s" alignItems="center">
-            <EuiFlexItem grow={false}>
-              <EuiButton isLoading={status === EStatus.LOADING} onClick={getLinks}>
-                Generate zip and get Link &hellip;
-              </EuiButton>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-
-          <EuiSpacer />
-
-          {status !== EStatus.LOADING && status !== EStatus.UNKNOWN ? (
-            <EuiFlexGroup responsive={false} wrap gutterSize="s" alignItems="center">
-              <EuiFlexItem grow={false}>
-                {isValidUrl(responseMessage) ? (
-                  <div className="response">
-                    <a className="archive-link" href={responseMessage}>
-                      {responseMessage}
-                    </a>
-                    <p className="warning-expiration">{' It expires on ' + expirationDate}</p>
-                  </div>
-                ) : (
-                  <p className="response"> {responseMessage} </p>
-                )}
-              </EuiFlexItem>
-            </EuiFlexGroup>
+          {requestStatus === EArchiveRequestStatus.ERROR ||
+          archiveStatus === EArchiveProcessStatus.FAILED ? (
+            <>
+              <p className="response">
+                <EuiTextColor className="word-break" color="danger">
+                  Error: {errorMessage}
+                </EuiTextColor>
+              </p>
+              <GenerateZipButton />
+            </>
+          ) : requestStatus !== EArchiveRequestStatus.LOADING &&
+            !ARCHIVE_PROCESS_VISIBLE_STATUSES.includes(archiveStatus) ? (
+            <GenerateZipButton />
           ) : (
-            ''
+            <ArchiveStatusProcessArea />
           )}
         </EuiModalBody>
       </EuiModal>
     </EuiOverlayMask>
   );
 
-  function getArchiveLinkFromPlatform() {
+  function GenerateZipButton() {
+    return (
+      <EuiFlexGroup
+        className="generate-button"
+        responsive={false}
+        wrap
+        gutterSize="m"
+        alignItems="center"
+      >
+        <EuiFlexItem grow={false}>
+          <EuiButton onClick={startArchiving}> Generate zip and get link </EuiButton>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    );
+  }
+
+  function ArchiveStatusProcessArea() {
+    return (
+      <div>
+        {archiveStatus === EArchiveProcessStatus.PENDING ? (
+          <>
+            <p>
+              <EuiTextColor color="default">
+                <EuiLoadingSpinner size="m" /> Pending on queue
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Downloading studies </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Archiving studies </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Uploading archive to S3 </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Getting link to archive from S3 </EuiTextColor>
+            </p>
+          </>
+        ) : archiveStatus === EArchiveProcessStatus.DOWNLOADING ? (
+          <>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Pending on queue
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiLoadingSpinner size="m" /> Downloading studies
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Archiving studies </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Uploading archive to S3 </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Getting link to archive from S3 </EuiTextColor>
+            </p>
+          </>
+        ) : archiveStatus === EArchiveProcessStatus.ARCHIVING ? (
+          <>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Pending on queue
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Downloading studies
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiLoadingSpinner size="m" /> Archiving studies
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Uploading archive to S3 </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Getting link to archive from S3 </EuiTextColor>
+            </p>
+          </>
+        ) : archiveStatus === EArchiveProcessStatus.UPLOADING ? (
+          <>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Pending on queue
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Downloading studies
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Archiving studies
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiLoadingSpinner size="m" /> Uploading archive to S3
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="subdued"> Getting link to archive from S3 </EuiTextColor>
+            </p>
+          </>
+        ) : archiveStatus === EArchiveProcessStatus.COMPLETED ? (
+          <>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Pending on queue
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Downloading studies
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Archiving studies
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Uploading archive to S3
+              </EuiTextColor>
+            </p>
+            <p>
+              <EuiTextColor color="default">
+                <EuiIcon size="m" type="check" /> Getting link to archive from S3
+              </EuiTextColor>
+            </p>
+            <EuiFlexGroup responsive={false} wrap gutterSize="s" alignItems="center">
+              <EuiFlexItem grow={false}>
+                {isValidUrl(archiveLink) ? (
+                  <div className="response">
+                    <a className="word-break" href={archiveLink}>
+                      {archiveLink}
+                    </a>
+                    <p className="warning-expiration">{' It expires on ' + expirationDate}</p>
+                  </div>
+                ) : (
+                  <p className="response"> {archiveLink} </p>
+                )}
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <GenerateZipButton />
+          </>
+        ) : (
+          ''
+        )}
+      </div>
+    );
+  }
+
+  function createArchiveProcessToPlatform() {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${
-        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_AMAZON_ARCHIVE)
+        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_PROCESS_CREATE)
       }`;
 
       oReq.addEventListener('error', (error) => {
@@ -214,7 +443,12 @@ export function ArchiverOpenModal(props: Props) {
         }
 
         if (oReq.status !== 200 && oReq.status !== 201) {
-          reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+          try {
+            const parsedResponseText = JSON.parse(oReq.responseText);
+            reject(`${parsedResponseText.message}`);
+          } catch {
+            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+          }
         } else {
           resolve({ response: oReq.responseText });
         }
@@ -232,12 +466,63 @@ export function ArchiverOpenModal(props: Props) {
     });
   }
 
+  function getArchiveProcessFromPlatform() {
+    return new Promise((resolve, reject) => {
+      const oReq = new XMLHttpRequest();
+      const url = `${
+        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_PROCESS_GET)
+      }`;
+
+      oReq.addEventListener('error', (error) => {
+        reject(
+          `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
+        );
+      });
+
+      oReq.addEventListener('load', () => {
+        if (!oReq.responseText) {
+          console.warn('Response was undefined');
+          reject(new Error('Response was undefined'));
+        }
+
+        if (oReq.status === 401) {
+          reject('Authentication failed, please verify OPENSEARCH api token');
+        }
+
+        if (oReq.status !== 200 && oReq.status !== 201) {
+          try {
+            const parsedResponseText = JSON.parse(oReq.responseText);
+            reject(`${parsedResponseText.message}`);
+          } catch {
+            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
+          }
+        } else {
+          resolve({ response: oReq.responseText });
+        }
+      });
+
+      console.info(`Sending Request to: ${url}`);
+      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(MARKETPLACE_API_OPENSEARCH_KEY)}`);
+      oReq.setRequestHeader('Accept', 'application/json');
+      oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+      const body = { requestUid };
+
+      oReq.send(JSON.stringify(body));
+    });
+  }
+
+  function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   function composeBodyFromRows(s3domain: string) {
     const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
+    const emailField = email || undefined;
 
     const body: IArchiveJson = {
       archivePath: archiveS3Path,
-      email,
+      email: emailField,
       archiveName,
       s3domain,
       studies: [],
@@ -254,13 +539,30 @@ export function ArchiverOpenModal(props: Props) {
         ? study.source.FileName
         : [study.source.FileName];
 
+      const reportPath = study.source.report_filepath
+        ? study.source.report_filepath.replace(s3domain, '')
+        : undefined;
+
       body.studies.push({
         studyInstanceUid: study.source.StudyInstanceUID,
         s3Path,
+        reportPath,
         fileNames,
       });
     }
 
     return body;
+  }
+
+  function getMsDelayByFilesAmount() {
+    if (filesAmount < 10) {
+      return 2500;
+    } else if (filesAmount < 50) {
+      return 3500;
+    } else if (filesAmount < 100) {
+      return 5000;
+    } else {
+      return 10000;
+    }
   }
 }

@@ -14,5 +14,6 @@ export interface IArchiveJson {
 export interface IStudyJson {
   studyInstanceUid: string;
   s3Path: string;
+  reportPath?: string;
   fileNames: string[];
 }

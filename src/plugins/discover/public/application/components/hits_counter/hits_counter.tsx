@@ -66,7 +66,7 @@ export function HitsCounter({ hits, showResetButton, rows, onResetQuery }: HitsC
 
     const archiverModal = React.createElement(ArchiverOpenModal, {
       rows,
-      title: 'Explore Studies',
+      title: 'Export Studies',
       onClose: closeModal,
     });
 
@@ -95,7 +95,7 @@ export function HitsCounter({ hits, showResetButton, rows, onResetQuery }: HitsC
               }}
             />
             <EuiButtonEmpty size="xs" onClick={openArchiver}>
-              Explore
+              Export
             </EuiButtonEmpty>
           </EuiText>
         </EuiFlexItem>

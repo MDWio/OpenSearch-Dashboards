@@ -47,8 +47,12 @@ import {
   CONTEXT_TIE_BREAKER_FIELDS_SETTING,
   MODIFY_COLUMNS_ON_SWITCH,
   MARKETPLACE_API,
-  MARKETPLACE_API_AMAZON_LINKS,
-  MARKETPLACE_API_AMAZON_ARCHIVE,
+  MARKETPLACE_DEV_API,
+  MARKETPLACE_API_LINKS,
+  MARKETPLACE_API_ARCHIVE_LINK,
+  MARKETPLACE_API_ARCHIVE_PROCESS_GET,
+  MARKETPLACE_API_ARCHIVE_PROCESS_CREATE,
+  MARKETPLACE_DEV_API_OPENSEARCH_KEY,
   MARKETPLACE_API_OPENSEARCH_KEY,
   REMOVE_AMAZON_ENDPOINT,
   AMAZON_S3_ARCHIVE_PATH,
@@ -206,28 +210,78 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_AMAZON_LINKS]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonLinksTitle', {
-      defaultMessage: 'Marketplace API URL for Amazon links',
+  [MARKETPLACE_DEV_API]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceDevUrlTitle', {
+      defaultMessage: 'Marketplace Dev DOMAIN',
     }),
-    value: '/api/opensearch/dicom/links/get',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonLinksText', {
-      defaultMessage: 'Api for marketplace to get amazon links',
+    value: 'http://localhost:3000',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceDevUrlText', {
+      defaultMessage: 'Marketplace Dev DOMAIN URL',
     }),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_AMAZON_ARCHIVE]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiAmazonArchiveTitle', {
-      defaultMessage: 'Marketplace API URL for Amazon archiver',
+  [MARKETPLACE_API_LINKS]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiLinksTitle', {
+      defaultMessage: 'Marketplace API URL for Amazon links',
+    }),
+    value: '/api/opensearch/dicom/links/get',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiLinksText', {
+      defaultMessage: 'Api for Marketplace to get Amazon links',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [MARKETPLACE_API_ARCHIVE_LINK]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveLinkTitle', {
+      defaultMessage: 'Marketplace API URL for OpenSearch archiver',
     }),
     value: '/api/opensearch/archive/link/get',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveLinkText', {
+      defaultMessage: 'Api for Marketplace to get link for zip archive',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [MARKETPLACE_API_ARCHIVE_PROCESS_GET]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveProcessGetTitle', {
+      defaultMessage: 'Marketplace API URL for getting Amazon archiver process',
+    }),
+    value: '/api/opensearch/archive/process/get',
     description: i18n.translate(
-      'discover.advancedSettings.viewer.marketplaceApiAmazonArchiveText',
+      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessGetText',
       {
-        defaultMessage: 'Api for marketplace to get link for zip archive',
+        defaultMessage: 'Api for Marketplace to get process of archiving',
       }
     ),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [MARKETPLACE_API_ARCHIVE_PROCESS_CREATE]: {
+    name: i18n.translate(
+      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessCreateTitle',
+      {
+        defaultMessage: 'Marketplace API URL for creating Amazon archiver process',
+      }
+    ),
+    value: '/api/opensearch/archive/process/create',
+    description: i18n.translate(
+      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessCreateText',
+      {
+        defaultMessage: 'Api for Marketplace to create process of archiving',
+      }
+    ),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [MARKETPLACE_DEV_API_OPENSEARCH_KEY]: {
+    name: i18n.translate('discover.advancedSettings.viewer.marketplaceDevApiKeyTitle', {
+      defaultMessage: 'Marketplace Dev API Key',
+    }),
+    value: 'SET_API_KEY',
+    description: i18n.translate('discover.advancedSettings.viewer.marketplaceDevApiKeyText', {
+      defaultMessage: 'Dev API key for Marketplace',
+    }),
     category: ['discover'],
     schema: schema.string(),
   },
@@ -237,7 +291,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     }),
     value: 'SET_API_KEY',
     description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiKeyText', {
-      defaultMessage: 'API key for marketplace',
+      defaultMessage: 'API key for Marketplace',
     }),
     category: ['discover'],
     schema: schema.string(),

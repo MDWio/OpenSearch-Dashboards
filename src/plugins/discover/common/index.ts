@@ -41,10 +41,16 @@ export const CONTEXT_DEFAULT_SIZE_SETTING = 'context:defaultSize';
 export const CONTEXT_STEP_SETTING = 'context:step';
 export const CONTEXT_TIE_BREAKER_FIELDS_SETTING = 'context:tieBreakerFields';
 export const MODIFY_COLUMNS_ON_SWITCH = 'discover:modifyColumnsOnSwitch';
+export const MARKETPLACE_DEV_API = 'discover:viewer:marketplaceDevUrl';
 export const MARKETPLACE_API = 'discover:viewer:marketplaceUrl';
-export const MARKETPLACE_API_AMAZON_LINKS = 'discover:viewer:marketplaceApiAmazonLinks';
-export const MARKETPLACE_API_AMAZON_ARCHIVE = 'discover:viewer:marketplaceApiAmazonArchive';
+export const MARKETPLACE_API_LINKS = 'discover:viewer:marketplaceApiLinks';
+export const MARKETPLACE_API_ARCHIVE_LINK = 'discover:archiver:marketplaceApiArchiveLink';
+export const MARKETPLACE_API_ARCHIVE_PROCESS_GET =
+  'discover:archiver:marketplaceApiArchiveProcessGet';
+export const MARKETPLACE_API_ARCHIVE_PROCESS_CREATE =
+  'discover:archiver:marketplaceApiArchiveProcessCreate';
 export const MARKETPLACE_API_OPENSEARCH_KEY = 'discover:viewer:marketplaceApiKey';
+export const MARKETPLACE_DEV_API_OPENSEARCH_KEY = 'discover:viewer:marketplaceDevApiKey';
 export const VIEWER_URL = 'discover:viewer:viewerUrl';
 export const REMOVE_AMAZON_ENDPOINT = 'discover:viewer:removeAmazonEndpointSubstring';
 export const AMAZON_S3_ARCHIVE_PATH = 'discover:amazons3:archivePath';
