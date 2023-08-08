@@ -362,7 +362,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         const archiveName = rowSource.StudyInstanceUID;
 
         const body: IArchiveJson = {
-          archivePath: archiveS3Path + '/studies/',
+          archivePath: archiveS3Path,
           archiveName,
           s3domain,
           studies: [],
