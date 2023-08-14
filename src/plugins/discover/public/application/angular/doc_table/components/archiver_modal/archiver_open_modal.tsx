@@ -42,6 +42,7 @@ import {
   EuiFlexItem,
   EuiFormRow,
   EuiIcon,
+  EuiLink,
   EuiLoadingSpinner,
   EuiModal,
   EuiModalBody,
@@ -400,9 +401,9 @@ export function ArchiverOpenModal(props: Props) {
               <EuiFlexItem grow={false}>
                 {isValidUrl(archiveLink) ? (
                   <div className="response">
-                    <a className="word-break" href={archiveLink}>
-                      {archiveLink}
-                    </a>
+                    <EuiLink className="download-link" href={archiveLink}>
+                      Download
+                    </EuiLink>
                     <p className="warning-expiration">{' It expires on ' + expirationDate}</p>
                   </div>
                 ) : (
