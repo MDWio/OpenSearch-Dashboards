@@ -209,6 +209,7 @@ export function ViewerOpenModal(props: Props) {
                     PhotometricInterpretation: String(source.PhotometricInterpretation),
                     BitsAllocated: Number(source.BitsAllocated),
                     BitsStored: Number(source.BitsStored),
+                    NumberOfFrames: Number(source.NumberOfFrames),
                     PixelRepresentation: Number(source.PixelRepresentation),
                     PixelSpacing: [Number(source.PixelSpacing0), Number(source.PixelSpacing1)],
                     HighBit: Number(source.HighBit),
