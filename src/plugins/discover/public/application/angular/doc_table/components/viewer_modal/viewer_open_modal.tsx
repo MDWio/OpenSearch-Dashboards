@@ -225,6 +225,7 @@ export function ViewerOpenModal(props: Props) {
           ],
         },
       ],
+      instanceNumber: source.InstanceNumber,
     };
     return example;
   }

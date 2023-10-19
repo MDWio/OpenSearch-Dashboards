@@ -5,6 +5,7 @@
 
 export interface IDicomJson {
   studies: IStudyJson[];
+  instanceNumber: string[];
 }
 
 export interface IStudyJson {
