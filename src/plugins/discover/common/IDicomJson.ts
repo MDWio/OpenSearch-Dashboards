@@ -5,7 +5,6 @@
 
 export interface IDicomJson {
   studies: IStudyJson[];
-  instanceNumber: string[];
 }
 
 export interface IStudyJson {
@@ -38,7 +37,7 @@ export interface IDicomInfo {
   BitsStored: number;
   Columns: number;
   HighBit: number;
-  InstanceNumber: number;
+  InstanceNumber: string[];
   Modality: string;
   PhotometricInterpretation: string;
   PixelRepresentation: number;

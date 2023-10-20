@@ -204,7 +204,7 @@ export function ViewerOpenModal(props: Props) {
                   metadata: {
                     Columns: Number(source.Columns),
                     Rows: Number(source.Rows),
-                    InstanceNumber: Number(source.InstanceNumber),
+                    InstanceNumber: source.InstanceNumber,
                     SOPClassUID: String(source.SOPClassUID),
                     PhotometricInterpretation: String(source.PhotometricInterpretation),
                     BitsAllocated: Number(source.BitsAllocated),
@@ -225,7 +225,6 @@ export function ViewerOpenModal(props: Props) {
           ],
         },
       ],
-      instanceNumber: source.InstanceNumber,
     };
     return example;
   }
