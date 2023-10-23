@@ -39,6 +39,7 @@ export interface IDicomInfo {
   HighBit: number;
   InstanceNumber: number;
   Modality: string;
+  NumberOfFrames: number;
   PhotometricInterpretation: string;
   PixelRepresentation: number;
   PixelSpacing: number[];
