@@ -203,7 +203,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.viewer.s3GatewayUrlTitle', {
       defaultMessage: 'S3 Gateway DOMAIN',
     }),
-    value: 'http://localhost:3000',
+    value: 'http://localhost:3600',
     description: i18n.translate('discover.advancedSettings.viewer.s3GatewayUrlText', {
       defaultMessage: 'S3 Gateway DOMAIN URL',
     }),
@@ -214,7 +214,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlTitle', {
       defaultMessage: 'S3 Gateway Dev DOMAIN',
     }),
-    value: 'http://localhost:3000',
+    value: 'http://localhost:3600',
     description: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlText', {
       defaultMessage: 'S3 Gateway Dev DOMAIN URL',
     }),
@@ -225,7 +225,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiLinksTitle', {
       defaultMessage: 'S3 Gateway API URL for Amazon links',
     }),
-    value: '/api/opensearch/dicom/links/get',
+    value: '/api/amazon/dicom/links/get',
     description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiLinksText', {
       defaultMessage: 'Api for S3 Gateway to get Amazon links',
     }),
@@ -236,7 +236,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveLinkTitle', {
       defaultMessage: 'S3 Gateway API URL for OpenSearch archiver',
     }),
-    value: '/api/opensearch/archive/link/get',
+    value: '/api/amazon/archive/link/get',
     description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveLinkText', {
       defaultMessage: 'Api for S3 Gateway to get link for zip archive',
     }),
@@ -247,7 +247,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveProcessGetTitle', {
       defaultMessage: 'S3 Gateway API URL for getting Amazon archiver process',
     }),
-    value: '/api/opensearch/archive/process/get',
+    value: '/api/amazon/archive/process/get',
     description: i18n.translate(
       'discover.advancedSettings.viewer.s3GatewayApiArchiveProcessGetText',
       {
@@ -261,7 +261,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveProcessCreateTitle', {
       defaultMessage: 'S3 Gateway API URL for creating Amazon archiver process',
     }),
-    value: '/api/opensearch/archive/process/create',
+    value: '/api/amazon/archive/process/create',
     description: i18n.translate(
       'discover.advancedSettings.viewer.s3GatewayApiArchiveProcessCreateText',
       {
@@ -308,7 +308,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.amazons3:archiveBucketTitle', {
       defaultMessage: 'Amazon archive bucket',
     }),
-    value: 's3://example.amazon.domain/',
+    value: 'archive_upload',
     description: i18n.translate('discover.advancedSettings.viewer.amazons3:archiveBucketText', {
       defaultMessage: 'Bucket for storing generating archives in Amazon S3',
     }),
