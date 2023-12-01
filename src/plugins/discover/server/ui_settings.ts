@@ -46,15 +46,15 @@ import {
   CONTEXT_STEP_SETTING,
   CONTEXT_TIE_BREAKER_FIELDS_SETTING,
   MODIFY_COLUMNS_ON_SWITCH,
-  MARKETPLACE_API,
-  MARKETPLACE_DEV_API,
-  MARKETPLACE_API_LINKS,
-  MARKETPLACE_API_ARCHIVE_LINK,
-  MARKETPLACE_API_ARCHIVE_PROCESS_GET,
-  MARKETPLACE_API_ARCHIVE_PROCESS_CREATE,
-  MARKETPLACE_DEV_API_OPENSEARCH_KEY,
-  MARKETPLACE_API_OPENSEARCH_KEY,
-  REMOVE_AMAZON_ENDPOINT,
+  S3_GATEWAY_API,
+  S3_GATEWAY_DEV_API,
+  S3_GATEWAY_API_LINKS,
+  S3_GATEWAY_API_ARCHIVE_LINK,
+  S3_GATEWAY_API_ARCHIVE_PROCESS_GET,
+  S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE,
+  S3_GATEWAY_DEV_API_OPENSEARCH_KEY,
+  S3_GATEWAY_API_OPENSEARCH_KEY,
+  AMAZON_S3_ARCHIVE_BUCKET,
   AMAZON_S3_ARCHIVE_PATH,
   VIEWER_URL,
 } from '../common';
@@ -199,99 +199,96 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.boolean(),
   },
-  [MARKETPLACE_API]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceUrlTitle', {
-      defaultMessage: 'Marketplace DOMAIN',
+  [S3_GATEWAY_API]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayUrlTitle', {
+      defaultMessage: 'S3 Gateway DOMAIN',
     }),
     value: 'http://localhost:3000',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceUrlText', {
-      defaultMessage: 'Marketplace DOMAIN URL',
+    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayUrlText', {
+      defaultMessage: 'S3 Gateway DOMAIN URL',
     }),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_DEV_API]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceDevUrlTitle', {
-      defaultMessage: 'Marketplace Dev DOMAIN',
+  [S3_GATEWAY_DEV_API]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlTitle', {
+      defaultMessage: 'S3 Gateway Dev DOMAIN',
     }),
     value: 'http://localhost:3000',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceDevUrlText', {
-      defaultMessage: 'Marketplace Dev DOMAIN URL',
+    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlText', {
+      defaultMessage: 'S3 Gateway Dev DOMAIN URL',
     }),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_LINKS]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiLinksTitle', {
-      defaultMessage: 'Marketplace API URL for Amazon links',
+  [S3_GATEWAY_API_LINKS]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiLinksTitle', {
+      defaultMessage: 'S3 Gateway API URL for Amazon links',
     }),
     value: '/api/opensearch/dicom/links/get',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiLinksText', {
-      defaultMessage: 'Api for Marketplace to get Amazon links',
+    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiLinksText', {
+      defaultMessage: 'Api for S3 Gateway to get Amazon links',
     }),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_ARCHIVE_LINK]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveLinkTitle', {
-      defaultMessage: 'Marketplace API URL for OpenSearch archiver',
+  [S3_GATEWAY_API_ARCHIVE_LINK]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveLinkTitle', {
+      defaultMessage: 'S3 Gateway API URL for OpenSearch archiver',
     }),
     value: '/api/opensearch/archive/link/get',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveLinkText', {
-      defaultMessage: 'Api for Marketplace to get link for zip archive',
+    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveLinkText', {
+      defaultMessage: 'Api for S3 Gateway to get link for zip archive',
     }),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_ARCHIVE_PROCESS_GET]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiArchiveProcessGetTitle', {
-      defaultMessage: 'Marketplace API URL for getting Amazon archiver process',
+  [S3_GATEWAY_API_ARCHIVE_PROCESS_GET]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveProcessGetTitle', {
+      defaultMessage: 'S3 Gateway API URL for getting Amazon archiver process',
     }),
     value: '/api/opensearch/archive/process/get',
     description: i18n.translate(
-      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessGetText',
+      'discover.advancedSettings.viewer.s3GatewayApiArchiveProcessGetText',
       {
-        defaultMessage: 'Api for Marketplace to get process of archiving',
+        defaultMessage: 'Api for S3 Gateway to get process of archiving',
       }
     ),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_ARCHIVE_PROCESS_CREATE]: {
-    name: i18n.translate(
-      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessCreateTitle',
-      {
-        defaultMessage: 'Marketplace API URL for creating Amazon archiver process',
-      }
-    ),
+  [S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveProcessCreateTitle', {
+      defaultMessage: 'S3 Gateway API URL for creating Amazon archiver process',
+    }),
     value: '/api/opensearch/archive/process/create',
     description: i18n.translate(
-      'discover.advancedSettings.viewer.marketplaceApiArchiveProcessCreateText',
+      'discover.advancedSettings.viewer.s3GatewayApiArchiveProcessCreateText',
       {
-        defaultMessage: 'Api for Marketplace to create process of archiving',
+        defaultMessage: 'Api for S3 Gateway to create process of archiving',
       }
     ),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_DEV_API_OPENSEARCH_KEY]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceDevApiKeyTitle', {
-      defaultMessage: 'Marketplace Dev API Key',
+  [S3_GATEWAY_DEV_API_OPENSEARCH_KEY]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevApiKeyTitle', {
+      defaultMessage: 'S3 Gateway Dev API Key',
     }),
     value: 'SET_API_KEY',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceDevApiKeyText', {
-      defaultMessage: 'Dev API key for Marketplace',
+    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevApiKeyText', {
+      defaultMessage: 'Dev API key for S3 Gateway',
     }),
     category: ['discover'],
     schema: schema.string(),
   },
-  [MARKETPLACE_API_OPENSEARCH_KEY]: {
-    name: i18n.translate('discover.advancedSettings.viewer.marketplaceApiKeyTitle', {
-      defaultMessage: 'Marketplace API Key',
+  [S3_GATEWAY_API_OPENSEARCH_KEY]: {
+    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiKeyTitle', {
+      defaultMessage: 'S3 Gateway API Key',
     }),
     value: 'SET_API_KEY',
-    description: i18n.translate('discover.advancedSettings.viewer.marketplaceApiKeyText', {
-      defaultMessage: 'API key for Marketplace',
+    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiKeyText', {
+      defaultMessage: 'API key for S3 Gateway',
     }),
     category: ['discover'],
     schema: schema.string(),
@@ -307,17 +304,14 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.string(),
   },
-  [REMOVE_AMAZON_ENDPOINT]: {
-    name: i18n.translate('discover.advancedSettings.viewer.removeAmazonEndpointSubstringTitle', {
-      defaultMessage: 'Amazon DOMAIN substring',
+  [AMAZON_S3_ARCHIVE_BUCKET]: {
+    name: i18n.translate('discover.advancedSettings.amazons3:archiveBucketTitle', {
+      defaultMessage: 'Amazon archive bucket',
     }),
     value: 's3://example.amazon.domain/',
-    description: i18n.translate(
-      'discover.advancedSettings.viewer.removeAmazonEndpointSubstringText',
-      {
-        defaultMessage: 'Substring that will be removed from every dicom_filepath',
-      }
-    ),
+    description: i18n.translate('discover.advancedSettings.viewer.amazons3:archiveBucketText', {
+      defaultMessage: 'Bucket for storing generating archives in Amazon S3',
+    }),
     category: ['discover'],
     schema: schema.string(),
   },
