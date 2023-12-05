@@ -54,6 +54,7 @@ import {
   S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE,
   S3_GATEWAY_DEV_API_OPENSEARCH_KEY,
   S3_GATEWAY_API_OPENSEARCH_KEY,
+  AMAZON_S3_ARCHIVE_DEV_BUCKET,
   AMAZON_S3_ARCHIVE_BUCKET,
   AMAZON_S3_ARCHIVE_PATH,
   VIEWER_URL,
@@ -304,13 +305,24 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     category: ['discover'],
     schema: schema.string(),
   },
+  [AMAZON_S3_ARCHIVE_DEV_BUCKET]: {
+    name: i18n.translate('discover.advancedSettings.amazons3:archiveDevBucketTitle', {
+      defaultMessage: 'Amazon archive bucket (dev)',
+    }),
+    value: 'archive-upload-dev',
+    description: i18n.translate('discover.advancedSettings.viewer.amazons3:archiveDevBucketText', {
+      defaultMessage: 'Bucket for storing generated archives in Amazon S3 (dev)',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
   [AMAZON_S3_ARCHIVE_BUCKET]: {
     name: i18n.translate('discover.advancedSettings.amazons3:archiveBucketTitle', {
       defaultMessage: 'Amazon archive bucket',
     }),
-    value: 'archive_upload',
+    value: 'archive-upload',
     description: i18n.translate('discover.advancedSettings.viewer.amazons3:archiveBucketText', {
-      defaultMessage: 'Bucket for storing generating archives in Amazon S3',
+      defaultMessage: 'Bucket for storing generated archives in Amazon S3',
     }),
     category: ['discover'],
     schema: schema.string(),

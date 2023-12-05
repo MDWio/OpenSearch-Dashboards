@@ -52,4 +52,5 @@ export const S3_GATEWAY_API_OPENSEARCH_KEY = 'discover:viewer:s3GatewayApiKey';
 export const S3_GATEWAY_DEV_API_OPENSEARCH_KEY = 'discover:viewer:s3GatewayDevApiKey';
 export const VIEWER_URL = 'discover:viewer:viewerUrl';
 export const AMAZON_S3_ARCHIVE_BUCKET = 'discover:viewer:amazons3:archiveBucket';
+export const AMAZON_S3_ARCHIVE_DEV_BUCKET = 'discover:viewer:amazons3:archiveDevBucket';
 export const AMAZON_S3_ARCHIVE_PATH = 'discover:amazons3:archivePath';
