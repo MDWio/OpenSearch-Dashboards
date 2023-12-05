@@ -58,6 +58,7 @@ import {
   AMAZON_S3_ARCHIVE_BUCKET,
   AMAZON_S3_ARCHIVE_PATH,
   VIEWER_URL,
+  DEV_VIEWER_URL,
 } from '../common';
 
 export const uiSettings: Record<string, UiSettingsParams> = {
@@ -301,6 +302,17 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     value: 'http://localhost:3500',
     description: i18n.translate('discover.advancedSettings.viewer.viewerUrlText', {
       defaultMessage: 'Url to OHIF viewer',
+    }),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [DEV_VIEWER_URL]: {
+    name: i18n.translate('discover.advancedSettings.viewer.devViewerUrlTitle', {
+      defaultMessage: 'OHIF Viewer (dev)',
+    }),
+    value: 'http://localhost:3500',
+    description: i18n.translate('discover.advancedSettings.viewer.devViewerUrlText', {
+      defaultMessage: 'Url to OHIF viewer (dev)',
     }),
     category: ['discover'],
     schema: schema.string(),
