@@ -345,7 +345,8 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           console.info(`Sending Request to: ${urlPlatform}`);
           oReq.open(
             'POST',
-            urlPlatform + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
+            urlPlatform + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`
+          );
           oReq.setRequestHeader('Accept', 'application/json');
           oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
