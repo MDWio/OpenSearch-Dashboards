@@ -41,16 +41,17 @@ export const CONTEXT_DEFAULT_SIZE_SETTING = 'context:defaultSize';
 export const CONTEXT_STEP_SETTING = 'context:step';
 export const CONTEXT_TIE_BREAKER_FIELDS_SETTING = 'context:tieBreakerFields';
 export const MODIFY_COLUMNS_ON_SWITCH = 'discover:modifyColumnsOnSwitch';
-export const MARKETPLACE_DEV_API = 'discover:viewer:marketplaceDevUrl';
-export const MARKETPLACE_API = 'discover:viewer:marketplaceUrl';
-export const MARKETPLACE_API_LINKS = 'discover:viewer:marketplaceApiLinks';
-export const MARKETPLACE_API_ARCHIVE_LINK = 'discover:archiver:marketplaceApiArchiveLink';
-export const MARKETPLACE_API_ARCHIVE_PROCESS_GET =
-  'discover:archiver:marketplaceApiArchiveProcessGet';
-export const MARKETPLACE_API_ARCHIVE_PROCESS_CREATE =
-  'discover:archiver:marketplaceApiArchiveProcessCreate';
-export const MARKETPLACE_API_OPENSEARCH_KEY = 'discover:viewer:marketplaceApiKey';
-export const MARKETPLACE_DEV_API_OPENSEARCH_KEY = 'discover:viewer:marketplaceDevApiKey';
+export const S3_GATEWAY_DEV_API = 'discover:viewer:s3GatewayDevUrl';
+export const S3_GATEWAY_API = 'discover:viewer:s3GatewayUrl';
+export const S3_GATEWAY_API_LINKS = 'discover:viewer:s3GatewayApiLinks';
+export const S3_GATEWAY_API_ARCHIVE_LINK = 'discover:archiver:s3GatewayApiArchiveLink';
+export const S3_GATEWAY_API_ARCHIVE_PROCESS_GET = 'discover:archiver:s3GatewayApiArchiveProcessGet';
+export const S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE =
+  'discover:archiver:s3GatewayApiArchiveProcessCreate';
+export const S3_GATEWAY_API_OPENSEARCH_KEY = 'discover:viewer:s3GatewayApiKey';
+export const S3_GATEWAY_DEV_API_OPENSEARCH_KEY = 'discover:viewer:s3GatewayDevApiKey';
 export const VIEWER_URL = 'discover:viewer:viewerUrl';
-export const REMOVE_AMAZON_ENDPOINT = 'discover:viewer:removeAmazonEndpointSubstring';
+export const DEV_VIEWER_URL = 'discover:viewer:devViewerUrl';
+export const AMAZON_S3_ARCHIVE_BUCKET = 'discover:viewer:amazons3:archiveBucket';
+export const AMAZON_S3_ARCHIVE_DEV_BUCKET = 'discover:viewer:amazons3:archiveDevBucket';
 export const AMAZON_S3_ARCHIVE_PATH = 'discover:amazons3:archivePath';

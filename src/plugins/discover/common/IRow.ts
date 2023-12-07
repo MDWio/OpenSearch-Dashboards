@@ -37,6 +37,7 @@ export interface ISource {
   Manufacturer: string;
   ManufacturerModelName: string;
   Modality: string;
+  NumberOfFrames: number;
   OperatorsName: string;
   PatientAge: number;
   PatientBirthDate: string;

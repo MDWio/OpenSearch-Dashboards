@@ -50,11 +50,11 @@ import detailsHtml from './table_row/details.html';
 import { dispatchRenderComplete, url } from '../../../../../../opensearch_dashboards_utils/public';
 import {
   DOC_HIDE_TIME_COLUMN_SETTING,
-  MARKETPLACE_API,
-  MARKETPLACE_API_ARCHIVE_LINK,
-  MARKETPLACE_API_OPENSEARCH_KEY,
+  S3_GATEWAY_API,
+  S3_GATEWAY_API_ARCHIVE_LINK,
+  S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
-  REMOVE_AMAZON_ENDPOINT,
+  AMAZON_S3_ARCHIVE_BUCKET,
 } from '../../../../../common';
 import cellTemplateHtml from '../components/table_row/cell.html';
 import cellActionsTemplateHtml from '../components/table_row/cell-actions.html';
@@ -316,7 +316,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         return new Promise((resolve, reject) => {
           const oReq = new XMLHttpRequest();
           const urlPlatform = `${
-            uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_LINK)
+            uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_ARCHIVE_LINK)
           }`;
 
           oReq.addEventListener('error', (error) => {
@@ -345,40 +345,42 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           console.info(`Sending Request to: ${urlPlatform}`);
           oReq.open(
             'POST',
-            urlPlatform + `?openSearchKey=${uiSettings.get(MARKETPLACE_API_OPENSEARCH_KEY)}`
+            urlPlatform + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`
           );
           oReq.setRequestHeader('Accept', 'application/json');
           oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
-          const replacedS3Domain = uiSettings.get(REMOVE_AMAZON_ENDPOINT);
-          const body = composeBodyFromRow(rowSource, replacedS3Domain);
+          const body = composeBodyFromRow(rowSource);
 
           oReq.send(JSON.stringify(body));
         });
       }
 
-      function composeBodyFromRow(rowSource: any, s3domain: string) {
+      function composeBodyFromRow(rowSource: any) {
         const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
         const archiveName = rowSource.StudyInstanceUID;
 
         const body: IArchiveJson = {
           archivePath: archiveS3Path,
           archiveName,
-          s3domain,
+          bucket: uiSettings.get(AMAZON_S3_ARCHIVE_BUCKET),
           studies: [],
         };
 
-        const s3Path = rowSource.dicom_filepath.replace(s3domain, '');
+        const bucket = rowSource.dicom_filepath.split('/')[2];
+        const s3Path = rowSource.dicom_filepath.replace(`s3://${bucket}/`, '');
+
         const fileNames = Array.isArray(rowSource.FileName)
           ? rowSource.FileName
           : [rowSource.FileName];
 
         const reportPath = rowSource.report_filepath
-          ? rowSource.report_filepath.replace(s3domain, '')
+          ? rowSource.report_filepath.replace(`s3://${bucket}/`, '')
           : undefined;
 
         body.studies.push({
           studyInstanceUid: rowSource.StudyInstanceUID,
+          bucket,
           s3Path,
           reportPath,
           fileNames,

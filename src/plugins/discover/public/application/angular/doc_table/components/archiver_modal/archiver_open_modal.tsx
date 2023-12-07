@@ -59,12 +59,12 @@ import { IArchiveJson } from '../../../../../../common/IArchiveJson';
 import { getServices } from '../../../../../opensearch_dashboards_services';
 import {
   SAMPLE_SIZE_SETTING,
-  MARKETPLACE_API,
-  MARKETPLACE_API_ARCHIVE_PROCESS_GET,
-  MARKETPLACE_API_ARCHIVE_PROCESS_CREATE,
-  MARKETPLACE_API_OPENSEARCH_KEY,
+  S3_GATEWAY_API,
+  S3_GATEWAY_API_ARCHIVE_PROCESS_GET,
+  S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE,
+  S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
-  REMOVE_AMAZON_ENDPOINT,
+  AMAZON_S3_ARCHIVE_BUCKET,
 } from '../../../../../../common';
 
 interface Props {
@@ -424,7 +424,7 @@ export function ArchiverOpenModal(props: Props) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${
-        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_PROCESS_CREATE)
+        uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE)
       }`;
 
       oReq.addEventListener('error', (error) => {
@@ -456,12 +456,11 @@ export function ArchiverOpenModal(props: Props) {
       });
 
       console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(MARKETPLACE_API_OPENSEARCH_KEY)}`);
+      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
       oReq.setRequestHeader('Accept', 'application/json');
       oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
-      const replacedS3Domain = uiSettings.get(REMOVE_AMAZON_ENDPOINT);
-      const body = composeBodyFromRows(replacedS3Domain);
+      const body = composeBodyFromRows();
 
       oReq.send(JSON.stringify(body));
     });
@@ -471,7 +470,7 @@ export function ArchiverOpenModal(props: Props) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${
-        uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_ARCHIVE_PROCESS_GET)
+        uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_ARCHIVE_PROCESS_GET)
       }`;
 
       oReq.addEventListener('error', (error) => {
@@ -503,7 +502,7 @@ export function ArchiverOpenModal(props: Props) {
       });
 
       console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(MARKETPLACE_API_OPENSEARCH_KEY)}`);
+      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
       oReq.setRequestHeader('Accept', 'application/json');
       oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
@@ -517,15 +516,16 @@ export function ArchiverOpenModal(props: Props) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  function composeBodyFromRows(s3domain: string) {
+  function composeBodyFromRows() {
     const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
+
     const emailField = email || undefined;
 
     const body: IArchiveJson = {
       archivePath: archiveS3Path,
       email: emailField,
       archiveName,
-      s3domain,
+      bucket: uiSettings.get(AMAZON_S3_ARCHIVE_BUCKET),
       studies: [],
     };
 
@@ -535,17 +535,20 @@ export function ArchiverOpenModal(props: Props) {
     }
 
     for (const study of studies) {
-      const s3Path = study.source.dicom_filepath.replace(s3domain, '');
+      const bucket = study.source.dicom_filepath.split('/')[2];
+      const s3Path = study.source.dicom_filepath.replace(`s3://${bucket}/`, '');
+
       const fileNames = Array.isArray(study.source.FileName)
         ? study.source.FileName
         : [study.source.FileName];
 
       const reportPath = study.source.report_filepath
-        ? study.source.report_filepath.replace(s3domain, '')
+        ? study.source.report_filepath.replace(`s3://${bucket}/`, '')
         : undefined;
 
       body.studies.push({
         studyInstanceUid: study.source.StudyInstanceUID,
+        bucket,
         s3Path,
         reportPath,
         fileNames,

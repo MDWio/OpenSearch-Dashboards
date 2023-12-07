@@ -7,12 +7,13 @@ export interface IArchiveJson {
   email?: string;
   archiveName: string;
   archivePath: string;
-  s3domain: string;
+  bucket: string;
   studies: IStudyJson[];
 }
 
 export interface IStudyJson {
   studyInstanceUid: string;
+  bucket: string;
   s3Path: string;
   reportPath?: string;
   fileNames: string[];

@@ -50,10 +50,9 @@ import { getServices } from '../../../../../opensearch_dashboards_services';
 import { IDicomJson } from '../../../../../../common/IDicomJson';
 import { IDicomFile } from '../../../../../../common/getS3KeysByFileNames';
 import {
-  MARKETPLACE_API,
-  MARKETPLACE_API_LINKS,
-  MARKETPLACE_API_OPENSEARCH_KEY,
-  REMOVE_AMAZON_ENDPOINT,
+  S3_GATEWAY_API,
+  S3_GATEWAY_API_LINKS,
+  S3_GATEWAY_API_OPENSEARCH_KEY,
   VIEWER_URL,
 } from '../../../../../../common';
 import { ISource } from '../../../../../../common/IRow';
@@ -71,14 +70,12 @@ export function ViewerOpenModal(props: Props) {
   const [src, setSrc] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const s3path = props.source.dicom_filepath.replace(
-    `${uiSettings.get(REMOVE_AMAZON_ENDPOINT)}`,
-    ''
-  );
+  const bucket = props.source.dicom_filepath.split('/')[2];
+  const s3path = props.source.dicom_filepath.replace(`s3://${bucket}/`, '');
 
   useEffect(() => {
     setState('gettingS3Links');
-    getS3UrlFromPlatform(props.source.FileName, s3path)
+    getS3UrlFromPlatform(props.source.FileName, bucket, s3path)
       .then((res) => {
         const parsedLinks = res as IDicomFile[];
 
@@ -141,10 +138,10 @@ export function ViewerOpenModal(props: Props) {
     </EuiOverlayMask>
   );
 
-  function getS3UrlFromPlatform(fileNames: string[], s3path: string) {
+  function getS3UrlFromPlatform(fileNames: string[], bucket: string, s3path: string) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
-      const url = `${uiSettings.get(MARKETPLACE_API) + uiSettings.get(MARKETPLACE_API_LINKS)}`;
+      const url = `${uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_LINKS)}`;
 
       oReq.addEventListener('error', (error) => {
         reject(
@@ -172,13 +169,13 @@ export function ViewerOpenModal(props: Props) {
       });
 
       console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(MARKETPLACE_API_OPENSEARCH_KEY)}`);
+      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
       oReq.setRequestHeader('Accept', 'application/json');
       oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
       const fileNamesArray = Array.isArray(fileNames) ? fileNames : [fileNames];
 
-      oReq.send(JSON.stringify({ fileNames: fileNamesArray, s3path }));
+      oReq.send(JSON.stringify({ fileNames: fileNamesArray, s3path, bucket }));
     });
   }
 
@@ -209,6 +206,7 @@ export function ViewerOpenModal(props: Props) {
                     PhotometricInterpretation: String(source.PhotometricInterpretation),
                     BitsAllocated: Number(source.BitsAllocated),
                     BitsStored: Number(source.BitsStored),
+                    NumberOfFrames: Number(source.NumberOfFrames),
                     PixelRepresentation: Number(source.PixelRepresentation),
                     PixelSpacing: [Number(source.PixelSpacing0), Number(source.PixelSpacing1)],
                     HighBit: Number(source.HighBit),
