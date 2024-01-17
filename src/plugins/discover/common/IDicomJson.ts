@@ -37,7 +37,7 @@ export interface IDicomInfo {
   BitsStored: number;
   Columns: number;
   HighBit: number;
-  InstanceNumber: number;
+  InstanceNumber: string[];
   Modality: string;
   NumberOfFrames: number;
   PhotometricInterpretation: string;
