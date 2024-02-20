@@ -538,10 +538,6 @@ export function ArchiverOpenModal(props: Props) {
       const bucket = study.source.dicom_filepath.split('/')[2];
       const s3Path = study.source.dicom_filepath.replace(`s3://${bucket}/`, '');
 
-      const fileNames = Array.isArray(study.source.FileName)
-        ? study.source.FileName
-        : [study.source.FileName];
-
       const reportPath = study.source.report_filepath
         ? study.source.report_filepath.replace(`s3://${bucket}/`, '')
         : undefined;
@@ -551,7 +547,6 @@ export function ArchiverOpenModal(props: Props) {
         bucket,
         s3Path,
         reportPath,
-        fileNames,
       });
     }
 

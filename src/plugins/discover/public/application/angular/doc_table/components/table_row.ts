@@ -370,10 +370,6 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         const bucket = rowSource.dicom_filepath.split('/')[2];
         const s3Path = rowSource.dicom_filepath.replace(`s3://${bucket}/`, '');
 
-        const fileNames = Array.isArray(rowSource.FileName)
-          ? rowSource.FileName
-          : [rowSource.FileName];
-
         const reportPath = rowSource.report_filepath
           ? rowSource.report_filepath.replace(`s3://${bucket}/`, '')
           : undefined;
@@ -383,7 +379,6 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           bucket,
           s3Path,
           reportPath,
-          fileNames,
         });
 
         return body;

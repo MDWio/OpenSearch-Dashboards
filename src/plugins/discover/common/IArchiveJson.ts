@@ -16,5 +16,4 @@ export interface IStudyJson {
   bucket: string;
   s3Path: string;
   reportPath?: string;
-  fileNames: string[];
 }
