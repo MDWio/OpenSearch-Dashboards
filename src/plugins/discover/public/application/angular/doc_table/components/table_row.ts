@@ -163,8 +163,9 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       $scope.openViewerInNewTab = () => {
         const bucket = $scope.row._source.dicom_filepath.split('/')[2];
         const s3path = $scope.row._source.dicom_filepath.replace(`s3://${bucket}/`, '');
+        const uiSettingsClient = getServices().uiSettings;
 
-        getS3UrlFromPlatform($scope.row._source.FileName, bucket, s3path, getServices().uiSettings)
+        getS3UrlFromPlatform($scope.row._source.FileName, bucket, s3path, uiSettingsClient)
           .then((res) => {
             const parsedLinks = res as IDicomFile[];
 
@@ -180,7 +181,12 @@ export function createTableRowDirective($compile: ng.ICompileService) {
             const tabOrWindow = window.open(encodedUrl, '_blank');
             tabOrWindow!.focus();
           })
-          .catch((err) => err); // do nothing
+          .catch((err) => {
+            toastNotifications.addDanger({
+              title: `Error while getting data for Viewer`,
+              text: err,
+            });
+          });
       };
 
       $scope.downloadStudy = () => {

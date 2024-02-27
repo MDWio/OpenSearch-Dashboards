@@ -106,5 +106,6 @@ export function parseSourceToIDicomJson(source: ISource) {
       },
     ],
   };
+
   return example;
 }
