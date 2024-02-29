@@ -64,6 +64,7 @@ import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_he
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { ViewerOpenModal } from './viewer_modal/viewer_open_modal';
+import { StudyNotesModal } from './study_notes_modal/study_notes_modal';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -155,6 +156,33 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         const container = document.createElement('div');
         document.body.appendChild(container);
         ReactDOM.render(viewerModal, container);
+      };
+
+      $scope.editStudyNotes = () => {
+        const closeModal = (updatedComment?: string) => {
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container);
+
+          if (updatedComment) {
+            $scope.row._source.Comments = updatedComment;
+          }
+        };
+
+        const studyNotesModal = React.createElement(StudyNotesModal, {
+          _id: $scope.row._id,
+          index: $scope.row._index,
+          source: $scope.row._source,
+          title: 'Edit study notes',
+          onClose: (updatedComment?: string) => closeModal(updatedComment),
+        });
+
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        ReactDOM.render(studyNotesModal, container);
+      };
+
+      $scope.isAvailableCommenting = () => {
+        return !!$scope.indexPattern.fields.getByName('Comments');
       };
 
       $scope.downloadStudy = () => {

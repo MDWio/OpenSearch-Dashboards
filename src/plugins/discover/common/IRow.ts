@@ -24,6 +24,7 @@ export interface ISource {
   BitsStored: string;
   BodyPartExamined: string;
   Columns: string[];
+  Comments: string;
   ContentDate: string;
   ContentTime: string;
   ContrastBolusAgent: string;

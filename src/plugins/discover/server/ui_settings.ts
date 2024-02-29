@@ -59,6 +59,7 @@ import {
   AMAZON_S3_ARCHIVE_PATH,
   VIEWER_URL,
   DEV_VIEWER_URL,
+  S3_GATEWAY_API_OPENSEARCH_OBJECT_STRING_UPDATE,
 } from '../common';
 
 export const uiSettings: Record<string, UiSettingsParams> = {
@@ -268,6 +269,23 @@ export const uiSettings: Record<string, UiSettingsParams> = {
       'discover.advancedSettings.viewer.s3GatewayApiArchiveProcessCreateText',
       {
         defaultMessage: 'Api for S3 Gateway to create process of archiving',
+      }
+    ),
+    category: ['discover'],
+    schema: schema.string(),
+  },
+  [S3_GATEWAY_API_OPENSEARCH_OBJECT_STRING_UPDATE]: {
+    name: i18n.translate(
+      'discover.advancedSettings.viewer.s3GatewayApiOpenSearchObjectStringUpdateTitle',
+      {
+        defaultMessage: 'S3 Gateway API URL for updating OpenSearch object string fields',
+      }
+    ),
+    value: '/api/opensearch/object-string/update',
+    description: i18n.translate(
+      'discover.advancedSettings.viewer.s3GatewayApiOpenSearchObjectStringUpdateText',
+      {
+        defaultMessage: 'Api for S3 Gateway to update OpenSearch object string fields',
       }
     ),
     category: ['discover'],
