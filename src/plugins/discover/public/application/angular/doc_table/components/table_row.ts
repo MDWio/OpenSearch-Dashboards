@@ -163,7 +163,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           ReactDOM.unmountComponentAtNode(container);
           document.body.removeChild(container);
 
-          if (updatedComment) {
+          if (updatedComment || updatedComment === '') {
             $scope.row._source.Comments = updatedComment;
           }
         };
