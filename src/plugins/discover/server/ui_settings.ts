@@ -48,10 +48,6 @@ import {
   MODIFY_COLUMNS_ON_SWITCH,
   S3_GATEWAY_API,
   S3_GATEWAY_DEV_API,
-  S3_GATEWAY_API_LINKS,
-  S3_GATEWAY_API_ARCHIVE_LINK,
-  S3_GATEWAY_API_ARCHIVE_PROCESS_GET,
-  S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE,
   S3_GATEWAY_DEV_API_OPENSEARCH_KEY,
   S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_DEV_BUCKET,
@@ -59,7 +55,6 @@ import {
   AMAZON_S3_ARCHIVE_PATH,
   VIEWER_URL,
   DEV_VIEWER_URL,
-  S3_GATEWAY_API_OPENSEARCH_OBJECT_STRING_UPDATE,
 } from '../common';
 
 export const uiSettings: Record<string, UiSettingsParams> = {
@@ -221,73 +216,6 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     description: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlText', {
       defaultMessage: 'S3 Gateway Dev DOMAIN URL',
     }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_API_LINKS]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiLinksTitle', {
-      defaultMessage: 'S3 Gateway API URL for Amazon links',
-    }),
-    value: '/api/amazon/dicom/links/get',
-    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiLinksText', {
-      defaultMessage: 'Api for S3 Gateway to get Amazon links',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_API_ARCHIVE_LINK]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveLinkTitle', {
-      defaultMessage: 'S3 Gateway API URL for OpenSearch archiver',
-    }),
-    value: '/api/amazon/archive/link/get',
-    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveLinkText', {
-      defaultMessage: 'Api for S3 Gateway to get link for zip archive',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_API_ARCHIVE_PROCESS_GET]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveProcessGetTitle', {
-      defaultMessage: 'S3 Gateway API URL for getting Amazon archiver process',
-    }),
-    value: '/api/amazon/archive/process/get',
-    description: i18n.translate(
-      'discover.advancedSettings.viewer.s3GatewayApiArchiveProcessGetText',
-      {
-        defaultMessage: 'Api for S3 Gateway to get process of archiving',
-      }
-    ),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiArchiveProcessCreateTitle', {
-      defaultMessage: 'S3 Gateway API URL for creating Amazon archiver process',
-    }),
-    value: '/api/amazon/archive/process/create',
-    description: i18n.translate(
-      'discover.advancedSettings.viewer.s3GatewayApiArchiveProcessCreateText',
-      {
-        defaultMessage: 'Api for S3 Gateway to create process of archiving',
-      }
-    ),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_API_OPENSEARCH_OBJECT_STRING_UPDATE]: {
-    name: i18n.translate(
-      'discover.advancedSettings.viewer.s3GatewayApiOpenSearchObjectStringUpdateTitle',
-      {
-        defaultMessage: 'S3 Gateway API URL for updating OpenSearch object string fields',
-      }
-    ),
-    value: '/api/opensearch/object-string/update',
-    description: i18n.translate(
-      'discover.advancedSettings.viewer.s3GatewayApiOpenSearchObjectStringUpdateText',
-      {
-        defaultMessage: 'Api for S3 Gateway to update OpenSearch object string fields',
-      }
-    ),
     category: ['discover'],
     schema: schema.string(),
   },

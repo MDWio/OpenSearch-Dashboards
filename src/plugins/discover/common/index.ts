@@ -43,13 +43,6 @@ export const CONTEXT_TIE_BREAKER_FIELDS_SETTING = 'context:tieBreakerFields';
 export const MODIFY_COLUMNS_ON_SWITCH = 'discover:modifyColumnsOnSwitch';
 export const S3_GATEWAY_DEV_API = 'discover:viewer:s3GatewayDevUrl';
 export const S3_GATEWAY_API = 'discover:viewer:s3GatewayUrl';
-export const S3_GATEWAY_API_LINKS = 'discover:viewer:s3GatewayApiLinks';
-export const S3_GATEWAY_API_ARCHIVE_LINK = 'discover:archiver:s3GatewayApiArchiveLink';
-export const S3_GATEWAY_API_ARCHIVE_PROCESS_GET = 'discover:archiver:s3GatewayApiArchiveProcessGet';
-export const S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE =
-  'discover:archiver:s3GatewayApiArchiveProcessCreate';
-export const S3_GATEWAY_API_OPENSEARCH_OBJECT_STRING_UPDATE =
-  'discover:archiver:s3GatewayApiOpenSearchObjectStringUpdate';
 export const S3_GATEWAY_API_OPENSEARCH_KEY = 'discover:viewer:s3GatewayApiKey';
 export const S3_GATEWAY_DEV_API_OPENSEARCH_KEY = 'discover:viewer:s3GatewayDevApiKey';
 export const VIEWER_URL = 'discover:viewer:viewerUrl';

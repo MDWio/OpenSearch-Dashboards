@@ -46,12 +46,12 @@ import {
   EuiOverlayMask,
 } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
+import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { getServices } from '../../../../../opensearch_dashboards_services';
 import { IDicomJson } from '../../../../../../common/IDicomJson';
 import { IDicomFile } from '../../../../../../common/getS3KeysByFileNames';
 import {
   S3_GATEWAY_API,
-  S3_GATEWAY_API_LINKS,
   S3_GATEWAY_API_OPENSEARCH_KEY,
   VIEWER_URL,
 } from '../../../../../../common';
@@ -103,7 +103,7 @@ export function ViewerOpenModal(props: Props) {
   }
 
   const HttpApiError = () => {
-    throw new Error('While retrieving S3 links from Marketplace: ' + JSON.stringify(errorMsg));
+    throw new Error('While retrieving S3 links from S3 gateway: ' + JSON.stringify(errorMsg));
   };
 
   return (
@@ -141,7 +141,7 @@ export function ViewerOpenModal(props: Props) {
   function getS3UrlFromPlatform(fileNames: string[], bucket: string, s3path: string) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
-      const url = `${uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_LINKS)}`;
+      const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.LINKS_LIST}`;
 
       oReq.addEventListener('error', (error) => {
         reject(

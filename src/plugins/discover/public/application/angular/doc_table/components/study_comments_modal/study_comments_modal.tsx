@@ -45,12 +45,9 @@ import {
   EuiTextArea,
 } from '@elastic/eui';
 import React, { useState } from 'react';
+import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { getServices } from '../../../../../opensearch_dashboards_services';
-import {
-  S3_GATEWAY_API,
-  S3_GATEWAY_API_OPENSEARCH_OBJECT_STRING_UPDATE,
-  S3_GATEWAY_API_OPENSEARCH_KEY,
-} from '../../../../../../common';
+import { S3_GATEWAY_API, S3_GATEWAY_API_OPENSEARCH_KEY } from '../../../../../../common';
 import { ISource } from '../../../../../../common/IRow';
 
 interface Props {
@@ -61,39 +58,38 @@ interface Props {
   title: string;
 }
 
-export function StudyNotesModal(props: Props) {
+export function StudyCommentsModal(props: Props) {
   const uiSettings = getServices().uiSettings;
   const toastNotifications = getServices().toastNotifications;
 
-  const [newStudyNotesValue, setNewStudyNotesValue] = useState(props.source.Comments);
+  const [newStudyCommentsValue, setNewStudyCommentsValue] = useState(props.source.Comments);
 
   const onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNewStudyNotesValue(event.target.value);
+    setNewStudyCommentsValue(event.target.value);
   };
 
   const onSave = () => {
-    updateOpensearchStringField()
+    updateOpensearchDocComments()
       .then(() => {
         toastNotifications.addSuccess({
-          title: `Update Study Note`,
-          text: `Study Note has been updated successfully for _id: ${props._id}`,
+          title: `Update Study Comments`,
+          text: `Study Comments has been updated successfully for _id: ${props._id}`,
         });
-        props.onClose(newStudyNotesValue);
+        props.onClose(newStudyCommentsValue);
       })
       .catch((error) => {
         toastNotifications.addDanger({
-          title: `Error while updating Study Note`,
+          title: `Error while updating Study Comments`,
           text: error,
         });
       });
   };
 
-  function updateOpensearchStringField() {
+  function updateOpensearchDocComments() {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${
-        uiSettings.get(S3_GATEWAY_API) +
-        uiSettings.get(S3_GATEWAY_API_OPENSEARCH_OBJECT_STRING_UPDATE)
+        uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_DOC_COMMENTS_UPDATE
       }`;
 
       oReq.addEventListener('error', (error) => {
@@ -131,8 +127,7 @@ export function StudyNotesModal(props: Props) {
       const body = {
         id: props._id,
         index: props.index,
-        field: 'Comments',
-        value: newStudyNotesValue,
+        value: newStudyCommentsValue,
       };
 
       oReq.send(JSON.stringify(body));
@@ -148,7 +143,7 @@ export function StudyNotesModal(props: Props) {
           </EuiModalHeaderTitle>
         </EuiModalHeader>
         <EuiModalBody>
-          <EuiTextArea value={newStudyNotesValue} onChange={(event) => onChange(event)} />
+          <EuiTextArea value={newStudyCommentsValue} onChange={(event) => onChange(event)} />
 
           <EuiSpacer />
 

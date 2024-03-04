@@ -44,6 +44,7 @@ import ng from 'angular';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { IArchiveJson } from 'src/plugins/discover/common/IArchiveJson';
+import { ES3GatewayApiUrl } from '../../../../../common/api';
 import openRowHtml from './table_row/open.html';
 import detailsHtml from './table_row/details.html';
 
@@ -51,7 +52,6 @@ import { dispatchRenderComplete, url } from '../../../../../../opensearch_dashbo
 import {
   DOC_HIDE_TIME_COLUMN_SETTING,
   S3_GATEWAY_API,
-  S3_GATEWAY_API_ARCHIVE_LINK,
   S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
@@ -64,7 +64,7 @@ import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_he
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { ViewerOpenModal } from './viewer_modal/viewer_open_modal';
-import { StudyNotesModal } from './study_notes_modal/study_notes_modal';
+import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -158,7 +158,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         ReactDOM.render(viewerModal, container);
       };
 
-      $scope.editStudyNotes = () => {
+      $scope.editStudyComments = () => {
         const closeModal = (updatedComment?: string) => {
           ReactDOM.unmountComponentAtNode(container);
           document.body.removeChild(container);
@@ -168,17 +168,17 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           }
         };
 
-        const studyNotesModal = React.createElement(StudyNotesModal, {
+        const studyCommentsModal = React.createElement(StudyCommentsModal, {
           _id: $scope.row._id,
           index: $scope.row._index,
           source: $scope.row._source,
-          title: 'Edit study notes',
+          title: 'Edit study comments',
           onClose: (updatedComment?: string) => closeModal(updatedComment),
         });
 
         const container = document.createElement('div');
         document.body.appendChild(container);
-        ReactDOM.render(studyNotesModal, container);
+        ReactDOM.render(studyCommentsModal, container);
       };
 
       $scope.isAvailableCommenting = () => {
@@ -344,7 +344,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         return new Promise((resolve, reject) => {
           const oReq = new XMLHttpRequest();
           const urlPlatform = `${
-            uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_ARCHIVE_LINK)
+            uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.ARCHIVE_LINK_GET
           }`;
 
           oReq.addEventListener('error', (error) => {
