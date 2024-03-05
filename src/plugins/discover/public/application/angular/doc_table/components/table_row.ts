@@ -44,6 +44,7 @@ import ng from 'angular';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { IArchiveJson } from 'src/plugins/discover/common/IArchiveJson';
+import { IDicomFile } from 'src/plugins/discover/common/getS3KeysByFileNames';
 import openRowHtml from './table_row/open.html';
 import detailsHtml from './table_row/details.html';
 
@@ -55,6 +56,7 @@ import {
   S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
+  VIEWER_URL,
 } from '../../../../../common';
 import cellTemplateHtml from '../components/table_row/cell.html';
 import cellActionsTemplateHtml from '../components/table_row/cell-actions.html';
@@ -64,6 +66,7 @@ import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_he
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { ViewerOpenModal } from './viewer_modal/viewer_open_modal';
+import { getS3UrlFromPlatform, parseSourceToIDicomJson } from './viewer_modal/utils';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -155,6 +158,35 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         const container = document.createElement('div');
         document.body.appendChild(container);
         ReactDOM.render(viewerModal, container);
+      };
+
+      $scope.openViewerInNewTab = () => {
+        const bucket = $scope.row._source.dicom_filepath.split('/')[2];
+        const s3path = $scope.row._source.dicom_filepath.replace(`s3://${bucket}/`, '');
+        const uiSettingsClient = getServices().uiSettings;
+
+        getS3UrlFromPlatform($scope.row._source.FileName, bucket, s3path, uiSettingsClient)
+          .then((res) => {
+            const parsedLinks = res as IDicomFile[];
+
+            const parsedSource = parseSourceToIDicomJson($scope.row._source);
+            const stringSource = JSON.stringify(parsedSource);
+
+            const encodedUrl =
+              `${uiSettings.get(VIEWER_URL)}/viewer?json=` +
+              encodeURIComponent(stringSource) +
+              '&images=' +
+              encodeURIComponent(JSON.stringify(parsedLinks));
+
+            const tabOrWindow = window.open(encodedUrl, '_blank');
+            tabOrWindow!.focus();
+          })
+          .catch((err) => {
+            toastNotifications.addDanger({
+              title: `Error while getting data for Viewer`,
+              text: err,
+            });
+          });
       };
 
       $scope.downloadStudy = () => {
