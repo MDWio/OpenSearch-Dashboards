@@ -50,7 +50,7 @@ export interface HitsCounterProps {
   /**
    * objects for archiving
    */
-  rows: IRow;
+  rows: IRow[];
   /**
    * resets the query
    */

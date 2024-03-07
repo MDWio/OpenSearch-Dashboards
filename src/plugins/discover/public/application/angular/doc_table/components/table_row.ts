@@ -58,6 +58,7 @@ import {
 } from '../../../../../common';
 import cellTemplateHtml from '../components/table_row/cell.html';
 import cellActionsTemplateHtml from '../components/table_row/cell-actions.html';
+import cellSelectionTemplateHtml from '../components/table_row/cell-selection.html';
 import downloadTemplateHtml from '../components/table_row/download.html';
 import loaderTemplateHtml from '../components/table_row/loader.html';
 import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_height.html';
@@ -88,6 +89,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
   const cellTemplate = template(noWhiteSpace(cellTemplateHtml));
   const cellActionsTemplate = template(noWhiteSpace(cellActionsTemplateHtml));
+  const cellSelectionTemplate = template(noWhiteSpace(cellSelectionTemplateHtml));
   const truncateByHeightTemplate = template(noWhiteSpace(truncateByHeightTemplateHtml));
 
   return {
@@ -99,6 +101,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       row: '=osdTableRow',
       onAddColumn: '=?',
       onRemoveColumn: '=?',
+      onChangeRowSelection: '=?',
     },
     link: ($scope: LazyScope, $el: JQuery) => {
       $el.after('<tr data-test-subj="docTableDetailsRow" class="osdDocTableDetails__row">');
@@ -147,7 +150,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         };
 
         const viewerModal = React.createElement(ViewerOpenModal, {
-          source: $scope.row._source,
+          sources: [$scope.row._source],
           title: 'View DICOM',
           onClose: closeModal,
         });
@@ -225,6 +228,13 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
         // We just create a string here because its faster.
         const newHtmls = [openRowHtml];
+
+        newHtmls.push(
+          cellSelectionTemplate({
+            row,
+            column: 'Object-selector',
+          })
+        );
 
         const mapping = indexPattern.fields.getByName;
         const hideTimeColumn = getServices().uiSettings.get(DOC_HIDE_TIME_COLUMN_SETTING, false);

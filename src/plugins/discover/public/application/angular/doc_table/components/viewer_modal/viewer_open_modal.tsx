@@ -58,9 +58,10 @@ import {
 import { ISource } from '../../../../../../common/IRow';
 
 interface Props {
-  source: ISource;
+  sources: ISource[];
   onClose: () => void;
   title: string;
+  isDualMod?: boolean;
 }
 
 export function ViewerOpenModal(props: Props) {
@@ -70,31 +71,41 @@ export function ViewerOpenModal(props: Props) {
   const [src, setSrc] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const bucket = props.source.dicom_filepath.split('/')[2];
-  const s3path = props.source.dicom_filepath.replace(`s3://${bucket}/`, '');
-
   useEffect(() => {
     setState('gettingS3Links');
-    getS3UrlFromPlatform(props.source.FileName, bucket, s3path)
-      .then((res) => {
-        const parsedLinks = res as IDicomFile[];
+    const parsedLinksToImages = [] as IDicomFile[][];
+    const parsedSource = [] as IDicomJson[];
 
-        const parsedSource = parseSourceToIDicomJson(props.source);
-        const stringSource = JSON.stringify(parsedSource);
+    async function formDataForViewer() {
+      try {
+        for (const source of props.sources) {
+          const bucket = source.dicom_filepath.split('/')[2];
+          const s3path = source.dicom_filepath.replace(`s3://${bucket}/`, '');
 
-        const encodedUrl =
+          const res = await getS3UrlViaS3Gateway(source.FileName, bucket, s3path);
+          parsedLinksToImages.push(res as IDicomFile[]);
+          parsedSource.push(parseSourceToIDicomJson(source));
+        }
+
+        let encodedUrl =
           `${uiSettings.get(VIEWER_URL)}/viewer?json=` +
-          encodeURIComponent(stringSource) +
+          encodeURIComponent(JSON.stringify(parsedSource)) +
           '&images=' +
-          encodeURIComponent(JSON.stringify(parsedLinks));
+          encodeURIComponent(JSON.stringify(parsedLinksToImages));
+
+        if (props.isDualMod) {
+          encodedUrl += '&isDualMod=true';
+        }
 
         setSrc(encodedUrl);
         setState('s3LinksRetrieved');
-      })
-      .catch((err) => {
+      } catch (err: any) {
         setErrorMsg(err);
         setState('error');
-      });
+      }
+    }
+
+    formDataForViewer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // array must be empty to avoid infinite loop
 
@@ -138,7 +149,7 @@ export function ViewerOpenModal(props: Props) {
     </EuiOverlayMask>
   );
 
-  function getS3UrlFromPlatform(fileNames: string[], bucket: string, s3path: string) {
+  function getS3UrlViaS3Gateway(fileNames: string[], bucket: string, s3path: string) {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       const url = `${uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_LINKS)}`;

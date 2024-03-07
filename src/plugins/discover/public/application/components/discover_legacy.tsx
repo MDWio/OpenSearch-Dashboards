@@ -31,7 +31,14 @@
  */
 import React, { useState, useCallback, useEffect } from 'react';
 import classNames from 'classnames';
-import { EuiButtonEmpty, EuiButtonIcon } from '@elastic/eui';
+import {
+  EuiBottomBar,
+  EuiButton,
+  EuiButtonEmpty,
+  EuiButtonIcon,
+  EuiFlexGroup,
+  EuiFlexItem,
+} from '@elastic/eui';
 import { i18n } from '@osd/i18n';
 import { FormattedMessage, I18nProvider } from '@osd/i18n/react';
 import { IUiSettingsClient, MountPoint } from 'opensearch-dashboards/public';
@@ -61,6 +68,7 @@ import { SavedSearch } from '../../saved_searches';
 import { SavedObject } from '../../../../../core/types';
 import { Vis } from '../../../../visualizations/public';
 import { TopNavMenuData } from '../../../../navigation/public';
+import { ViewerOpenModal } from '../angular/doc_table/components/viewer_modal/viewer_open_modal';
 
 export interface DiscoverLegacyProps {
   addColumn: (column: string) => void;
@@ -132,7 +140,11 @@ export function DiscoverLegacy({
   updateSavedQueryId,
   vis,
 }: DiscoverLegacyProps) {
+  const [isViewerModalVisible, setIsViewerModalVisible] = useState(false);
   const [isSidebarClosed, setIsSidebarClosed] = useState(false);
+  const [isAllSelected, setIsAllSelected] = useState(false);
+  const [showBar, setShowBar] = useState(false);
+  const [isViewStudiesButtonDisable, setIsViewStudiesButtonDisable] = useState(true);
   const { TopNavMenu } = getServices().navigation.ui;
   const { savedSearch, indexPatternList } = opts;
   const bucketAggConfig = vis?.data?.aggs?.aggs[1];
@@ -146,6 +158,7 @@ export function DiscoverLegacy({
     fixedScrollEl,
     opts,
   ]);
+
   const fixedScrollRef = useCallback(
     (node: HTMLElement) => {
       if (node !== null) {
@@ -162,6 +175,22 @@ export function DiscoverLegacy({
     'col-md-10': !isSidebarClosed,
     'col-md-12': isSidebarClosed,
   });
+
+  function onChangeAllSelected(isSelected: boolean) {
+    setIsAllSelected(isSelected);
+    setShowBar(isSelected);
+
+    for (const row of rows) {
+      row.isSelected = isSelected;
+    }
+  }
+
+  function onChangeRowSelection() {
+    const selectedRows = rows?.filter((row) => row.isSelected);
+    setShowBar(selectedRows?.length > 0);
+    setIsViewStudiesButtonDisable(selectedRows?.length !== 2);
+    setIsAllSelected(selectedRows?.length === rows?.length);
+  }
 
   return (
     <I18nProvider>
@@ -295,6 +324,9 @@ export function DiscoverLegacy({
                             onMoveColumn={onMoveColumn}
                             onRemoveColumn={onRemoveColumn}
                             onSort={onSort}
+                            isAllSelected={isAllSelected}
+                            onChangeAllSelected={onChangeAllSelected}
+                            onChangeRowSelection={onChangeRowSelection}
                           />
                           <a tabIndex={0} id="discoverBottomMarker">
                             &#8203;
@@ -323,6 +355,47 @@ export function DiscoverLegacy({
                       )}
                     </section>
                   </div>
+                  {isViewerModalVisible && (
+                    <ViewerOpenModal
+                      sources={rows.filter((row) => row.isSelected).map((row) => row._source)}
+                      onClose={() => setIsViewerModalVisible(false)}
+                      title={'View DICOM'}
+                      isDualMod={true}
+                    />
+                  )}
+                  {showBar && (
+                    <EuiBottomBar>
+                      <EuiFlexGroup justifyContent="flexStart">
+                        <EuiFlexItem grow={false}>
+                          <EuiFlexGroup gutterSize="s">
+                            <EuiFlexItem grow={false}>
+                              <EuiButton
+                                fill
+                                color={isViewStudiesButtonDisable ? 'ghost' : 'primary'}
+                                size="s"
+                                iconType="eye"
+                                isDisabled={isViewStudiesButtonDisable}
+                                onClick={() => setIsViewerModalVisible(true)}
+                              >
+                                View Studies
+                              </EuiButton>
+                            </EuiFlexItem>
+                            <EuiFlexItem grow={false}>
+                              <EuiButton
+                                fill
+                                color={isViewStudiesButtonDisable ? 'ghost' : 'primary'}
+                                size="s"
+                                iconType="eyeClosed"
+                                isDisabled={isViewStudiesButtonDisable}
+                              >
+                                View Studies in a new tab
+                              </EuiButton>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiBottomBar>
+                  )}
                 </div>
               )}
             </div>

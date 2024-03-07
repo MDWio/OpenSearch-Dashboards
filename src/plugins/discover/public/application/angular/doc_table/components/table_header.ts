@@ -48,6 +48,8 @@ export function createTableHeaderDirective(reactDirective: any) {
       ['onMoveColumn', { watchDepth: 'reference' }],
       ['onRemoveColumn', { watchDepth: 'reference' }],
       ['sortOrder', { watchDepth: 'collection' }],
+      ['isAllSelected', { watchDepth: 'value' }],
+      ['onChangeAllSelected', { watchDepth: 'reference' }],
     ],
     { restrict: 'A' },
     {
