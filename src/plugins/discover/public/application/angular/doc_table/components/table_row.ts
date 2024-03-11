@@ -44,6 +44,7 @@ import ng from 'angular';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { IArchiveJson } from 'src/plugins/discover/common/IArchiveJson';
+import { IDicomFile } from 'src/plugins/discover/common/getS3KeysByFileNames';
 import openRowHtml from './table_row/open.html';
 import detailsHtml from './table_row/details.html';
 
@@ -55,6 +56,7 @@ import {
   S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
+  VIEWER_URL,
 } from '../../../../../common';
 import cellTemplateHtml from '../components/table_row/cell.html';
 import cellActionsTemplateHtml from '../components/table_row/cell-actions.html';
@@ -65,6 +67,7 @@ import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_he
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { ViewerOpenModal } from './viewer_modal/viewer_open_modal';
+import { getS3UrlViaS3Gateway, parseSourceToIDicomJson } from './viewer_modal/utils';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -143,7 +146,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         $compile($detailsTr)($detailsScope);
       };
 
-      $scope.openViewer = () => {
+      $scope.openViewer = (openInNewTab: boolean) => {
         const closeModal = () => {
           ReactDOM.unmountComponentAtNode(container);
           document.body.removeChild(container);
@@ -153,6 +156,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           sources: [$scope.row._source],
           title: 'View DICOM',
           onClose: closeModal,
+          openInNewTab,
         });
 
         const container = document.createElement('div');

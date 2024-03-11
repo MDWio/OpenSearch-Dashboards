@@ -141,6 +141,7 @@ export function DiscoverLegacy({
   vis,
 }: DiscoverLegacyProps) {
   const [isViewerModalVisible, setIsViewerModalVisible] = useState(false);
+  const [openInNewTab, setOpenInNewTab] = useState(false);
   const [isSidebarClosed, setIsSidebarClosed] = useState(false);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [showBar, setShowBar] = useState(false);
@@ -361,6 +362,7 @@ export function DiscoverLegacy({
                       onClose={() => setIsViewerModalVisible(false)}
                       title={'View DICOM'}
                       isDualMod={true}
+                      openInNewTab={openInNewTab}
                     />
                   )}
                   {showBar && (
@@ -375,7 +377,10 @@ export function DiscoverLegacy({
                                 size="s"
                                 iconType="eye"
                                 isDisabled={isViewStudiesButtonDisable}
-                                onClick={() => setIsViewerModalVisible(true)}
+                                onClick={() => {
+                                  setOpenInNewTab(false);
+                                  setIsViewerModalVisible(true);
+                                }}
                               >
                                 View Studies
                               </EuiButton>
@@ -387,6 +392,10 @@ export function DiscoverLegacy({
                                 size="s"
                                 iconType="eyeClosed"
                                 isDisabled={isViewStudiesButtonDisable}
+                                onClick={() => {
+                                  setOpenInNewTab(true);
+                                  setIsViewerModalVisible(true);
+                                }}
                               >
                                 View Studies in a new tab
                               </EuiButton>
