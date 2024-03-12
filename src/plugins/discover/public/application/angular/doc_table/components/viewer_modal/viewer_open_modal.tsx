@@ -117,8 +117,6 @@ export function ViewerOpenModal(props: Props) {
   };
 
   return !props.openInNewTab ? (
-    <></>
-  ) : (
     <EuiOverlayMask id="ViewerOverlay" style="padding: 0">
       <EuiModal id="ViewerModal" maxWidth="false" onClose={props.onClose}>
         <EuiModalHeader>
@@ -148,5 +146,7 @@ export function ViewerOpenModal(props: Props) {
         </EuiModalBody>
       </EuiModal>
     </EuiOverlayMask>
+  ) : (
+    <></>
   );
 }
