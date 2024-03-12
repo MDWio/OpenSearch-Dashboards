@@ -75,6 +75,7 @@ export interface ISource {
   StudyID: string;
   StudyInstanceUID: string;
   StudyTime: string;
+  Tags: string[];
   ViewPosition: string;
   WindowCenter: string;
   WindowWidth: string;

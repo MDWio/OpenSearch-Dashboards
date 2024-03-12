@@ -11,4 +11,6 @@ export enum ES3GatewayApiUrl {
   ARCHIVE_PROCESS_GET = '/api/amazon/archive/process/get',
 
   OPENSEARCH_DOC_COMMENTS_UPDATE = '/api/opensearch/doc/comments/update',
+  OPENSEARCH_DOC_TAGS_UPDATE = '/api/opensearch/doc/tags/update',
+  OPENSEARCH_SUGGESTED_TAGS_LIST = '/api/opensearch/tags/list',
 }

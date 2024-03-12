@@ -34,6 +34,7 @@
 
 import {
   EuiButton,
+  EuiButtonEmpty,
   EuiFlexGroup,
   EuiFlexItem,
   EuiModal,
@@ -149,14 +150,14 @@ export function StudyCommentsModal(props: Props) {
 
           <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
             <EuiFlexItem grow={false}>
-              <EuiButton color="primary" fill onClick={onSave}>
-                Save
-              </EuiButton>
+              <EuiButtonEmpty color="primary" onClick={() => props.onClose()}>
+                Cancel
+              </EuiButtonEmpty>
             </EuiFlexItem>
 
             <EuiFlexItem grow={false}>
-              <EuiButton color="primary" onClick={() => props.onClose()}>
-                Cancel
+              <EuiButton color="primary" fill onClick={onSave}>
+                Save
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>

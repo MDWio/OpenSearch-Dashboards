@@ -60,7 +60,7 @@ export function TableHeader({
   sortOrder,
 }: Props) {
   const columnsParsed = JSON.parse(JSON.stringify(columns));
-  columnsParsed.push('Action');
+  columnsParsed.push('Actions');
   const displayedColumns = getDisplayedColumns(
     columnsParsed,
     indexPattern,
