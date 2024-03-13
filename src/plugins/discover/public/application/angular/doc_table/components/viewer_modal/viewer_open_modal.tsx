@@ -66,7 +66,7 @@ export function ViewerOpenModal(props: Props) {
 
   useEffect(() => {
     setState('gettingS3Links');
-    const parsedLinksToImages = [] as IDicomFile[][];
+    const parsedLinksToImages = new Array<IDicomFile[]>();
     const parsedSource = new Array<IDicomJson>();
 
     async function formDataForViewer() {
