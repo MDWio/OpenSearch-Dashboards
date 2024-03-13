@@ -169,6 +169,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
           if (updatedComment || updatedComment === '') {
             $scope.row._source.Comments = updatedComment;
+            rerenderRow();
           }
         };
 
@@ -196,6 +197,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
           if (updatedTags) {
             $scope.row._source.Tags = updatedTags;
+            rerenderRow();
           }
         };
 
@@ -306,10 +308,19 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         )}?${hash}`;
       };
 
+      function rerenderRow() {
+        $scope.indexPattern.deleteFormatCachedHit($scope.row);
+        createSummaryRow($scope.row, true);
+        if ($scope.open) {
+          $scope.toggleRow();
+          $scope.toggleRow();
+        }
+      }
+
       // create a tr element that lists the value for each *column*
-      function createSummaryRow(row: any) {
+      function createSummaryRow(row: any, isClearCache = false) {
         const indexPattern = $scope.indexPattern;
-        $scope.flattenedRow = indexPattern.flattenHit(row);
+        $scope.flattenedRow = indexPattern.flattenHit(row, false, isClearCache);
 
         // We just create a string here because its faster.
         const newHtmls = [openRowHtml];
