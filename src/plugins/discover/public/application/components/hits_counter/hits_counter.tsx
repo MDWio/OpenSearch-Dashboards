@@ -33,10 +33,7 @@ import React from 'react';
 import { EuiButtonEmpty, EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
 import { FormattedMessage, I18nProvider } from '@osd/i18n/react';
 import { i18n } from '@osd/i18n';
-import ReactDOM from 'react-dom';
 import { formatNumWithCommas } from '../../helpers';
-import { ArchiverOpenModal } from '../../angular/doc_table/components/archiver_modal/archiver_open_modal';
-import { IRow } from '../../../../common/IRow';
 
 export interface HitsCounterProps {
   /**
@@ -50,31 +47,27 @@ export interface HitsCounterProps {
   /**
    * objects for archiving
    */
-  rows: IRow[];
+  rows: Array<Record<string, unknown>>;
+  /**
+   * function for open archiving modal
+   */
+  openArchiverModal: (
+    rowsForDownload: Array<Record<string, unknown>>,
+    isExportFromHitsCounter: boolean
+  ) => void;
   /**
    * resets the query
    */
   onResetQuery: () => void;
 }
 
-export function HitsCounter({ hits, showResetButton, rows, onResetQuery }: HitsCounterProps) {
-  function openArchiver() {
-    const closeModal = () => {
-      ReactDOM.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-    };
-
-    const archiverModal = React.createElement(ArchiverOpenModal, {
-      rows,
-      title: 'Export Studies',
-      onClose: closeModal,
-    });
-
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    ReactDOM.render(archiverModal, container);
-  }
-
+export function HitsCounter({
+  hits,
+  showResetButton,
+  rows,
+  openArchiverModal,
+  onResetQuery,
+}: HitsCounterProps) {
   return (
     <I18nProvider>
       <EuiFlexGroup
@@ -94,7 +87,7 @@ export function HitsCounter({ hits, showResetButton, rows, onResetQuery }: HitsC
                 hits,
               }}
             />
-            <EuiButtonEmpty size="xs" onClick={openArchiver}>
+            <EuiButtonEmpty size="xs" onClick={() => openArchiverModal(rows, true)}>
               Export
             </EuiButtonEmpty>
           </EuiText>

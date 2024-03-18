@@ -64,6 +64,7 @@ export function createDocTableDirective(pagerFactory: any, $filter: any) {
       onChangeAllSelected: '=',
       isAllSelected: '=?',
       onChangeRowSelection: '=?',
+      openViewerModal: '=?',
     },
     link: ($scope: LazyScope, $el: JQuery) => {
       $scope.persist = {

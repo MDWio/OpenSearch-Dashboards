@@ -105,6 +105,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       onAddColumn: '=?',
       onRemoveColumn: '=?',
       onChangeRowSelection: '=?',
+      openViewerModal: '=?',
     },
     link: ($scope: LazyScope, $el: JQuery) => {
       $el.after('<tr data-test-subj="docTableDetailsRow" class="osdDocTableDetails__row">');
@@ -147,21 +148,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       };
 
       $scope.openViewer = (openInNewTab: boolean) => {
-        const closeModal = () => {
-          ReactDOM.unmountComponentAtNode(container);
-          document.body.removeChild(container);
-        };
-
-        const viewerModal = React.createElement(ViewerOpenModal, {
-          sources: [$scope.row._source],
-          title: 'View DICOM',
-          onClose: closeModal,
-          openInNewTab,
-        });
-
-        const container = document.createElement('div');
-        document.body.appendChild(container);
-        ReactDOM.render(viewerModal, container);
+        $scope.openViewerModal([$scope.row._source], openInNewTab);
       };
 
       $scope.downloadStudy = () => {

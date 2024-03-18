@@ -20,7 +20,7 @@
         <tbody>
           <tr
             ng-repeat="row in pageOfItems|limitTo:limit track by row._index+row._type+row._id+row._score+row._version+row._routing"
-            osd-table-row="row" columns="columns" sorting="sorting" index-pattern="indexPattern" filter="filter"
+            osd-table-row="row" columns="columns" sorting="sorting" index-pattern="indexPattern" filter="filter" open-viewer-modal="openViewerModal"
             class="osdDocTable__row" on-add-column="onAddColumn" on-remove-column="onRemoveColumn" on-change-row-selection="onChangeRowSelection"></tr>
         </tbody>
       </table>
@@ -49,7 +49,7 @@
         osd-table-row="row" columns="columns" sorting="sorting" index-pattern="indexPattern" filter="filter"
         class="osdDocTable__row" ng-class="{'osdDocTable__row--highlight': row['$$_isAnchor']}"
         data-test-subj="docTableRow{{ row['$$_isAnchor'] ? ' docTableAnchorRow' : ''}}" on-add-column="onAddColumn"
-        on-remove-column="onRemoveColumn" on-change-row-selection="onChangeRowSelection"></tr>
+        on-remove-column="onRemoveColumn" on-change-row-selection="onChangeRowSelection" open-viewer-modal="openViewerModal"></tr>
     </tbody>
   </table>
   <osd-infinite-scroll ng-if="infiniteScroll" more="addRows"></osd-infinite-scroll>

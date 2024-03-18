@@ -36,6 +36,7 @@
 
 import {
   EuiButton,
+  EuiButtonEmpty,
   EuiFieldNumber,
   EuiFieldText,
   EuiFlexGroup,
@@ -71,6 +72,7 @@ interface Props {
   rows: any;
   onClose: () => void;
   title: string;
+  isExportFromHitsCounter?: boolean;
 }
 
 export function ArchiverOpenModal(props: Props) {
@@ -212,20 +214,22 @@ export function ArchiverOpenModal(props: Props) {
               }}
             />
           </EuiFormRow>
-          <EuiFormRow
-            label="Studies amount *"
-            helpText={maxRows + ' max, it depends on setting: ' + SAMPLE_SIZE_SETTING}
-          >
-            <EuiFieldNumber
-              placeholder="1"
-              value={filesAmount}
-              onChange={(event) => {
-                setFilesAmount(Number(event.target.value));
-              }}
-              min={1}
-              max={maxRows}
-            />
-          </EuiFormRow>
+          {props.isExportFromHitsCounter && (
+            <EuiFormRow
+              label="Studies amount *"
+              helpText={maxRows + ' max, it depends on setting: ' + SAMPLE_SIZE_SETTING}
+            >
+              <EuiFieldNumber
+                placeholder="1"
+                value={filesAmount}
+                onChange={(event) => {
+                  setFilesAmount(Number(event.target.value));
+                }}
+                min={1}
+                max={maxRows}
+              />
+            </EuiFormRow>
+          )}
           <EuiFormRow label="Email" helpText="optional">
             <EuiFieldText
               placeholder="example@mail.com"
@@ -261,15 +265,16 @@ export function ArchiverOpenModal(props: Props) {
 
   function GenerateZipButton() {
     return (
-      <EuiFlexGroup
-        className="generate-button"
-        responsive={false}
-        wrap
-        gutterSize="m"
-        alignItems="center"
-      >
+      <EuiFlexGroup className="generate-button" justifyContent="flexEnd" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiButton onClick={startArchiving}> Generate zip and get link </EuiButton>
+          <EuiButtonEmpty color="primary" onClick={() => props.onClose()}>
+            Cancel
+          </EuiButtonEmpty>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiButton color="primary" fill onClick={startArchiving}>
+            Export
+          </EuiButton>
         </EuiFlexItem>
       </EuiFlexGroup>
     );
