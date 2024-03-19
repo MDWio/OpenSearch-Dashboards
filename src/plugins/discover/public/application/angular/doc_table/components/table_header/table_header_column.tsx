@@ -31,7 +31,6 @@
  */
 import React from 'react';
 import { i18n } from '@osd/i18n';
-import { EuiCheckbox, EuiToolTip } from '@elastic/eui';
 import { SortOrder } from './helpers';
 
 interface Props {
@@ -188,9 +187,9 @@ export function TableHeaderColumn({
     <th data-test-subj="docTableHeaderField">
       <span data-test-subj={`docTableHeader-${name}`}>
         {displayName === 'Object-selector' ? (
-          <EuiCheckbox
-            id={displayName}
-            checked={isAllSelected}
+          <input
+            type="checkbox"
+            defaultChecked={isAllSelected}
             onChange={(e) => onChangeAllSelected(e.target.checked)}
           />
         ) : (
