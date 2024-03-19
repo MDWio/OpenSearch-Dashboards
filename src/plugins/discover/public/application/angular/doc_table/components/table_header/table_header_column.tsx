@@ -197,7 +197,9 @@ export function TableHeaderColumn({
           displayName
         )}
 
-        {/* {buttons
+        {
+          // These buttons are disabled because they don't work correctly.
+          /* {buttons
           .filter((button) => button.active)
           .map((button, idx) => (
             <EuiToolTip
@@ -212,7 +214,8 @@ export function TableHeaderColumn({
                 onClick={button.onClick}
               />
             </EuiToolTip>
-          ))} */}
+          ))} */
+        }
       </span>
     </th>
   );

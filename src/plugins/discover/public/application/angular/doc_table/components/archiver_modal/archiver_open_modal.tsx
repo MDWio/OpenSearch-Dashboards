@@ -160,6 +160,10 @@ export function ArchiverOpenModal(props: Props) {
   };
 
   useEffect(() => {
+    if (!props.isExportFromHitsCounter) {
+      setFilesAmount(props.rows.length);
+    }
+
     if (requestUid) {
       getArchiveStatus();
     }
