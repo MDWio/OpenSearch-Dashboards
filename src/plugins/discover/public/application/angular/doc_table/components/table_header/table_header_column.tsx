@@ -198,7 +198,7 @@ export function TableHeaderColumn({
         )}
 
         {
-          // These buttons are disabled because they don't work correctly.
+          // TODO: These buttons are disabled because they don't work correctly.
           /* {buttons
           .filter((button) => button.active)
           .map((button, idx) => (
