@@ -21,4 +21,16 @@
           </button>
           <% } %>
       </span>
+      <% if (sourcefield && tags) { %>
+        <div ng-click="editStudyTags()" ng-disabled="!isTagAvailable()" style="display: flex; flex-direction: row; gap: 5px; margin-top: 5px;">
+          <div style="background-color: rgba(0, 86, 144, 0.1); border-radius: 5px; padding: 3px; margin-top: 2px">
+            Tags:
+          </div>
+          <% for (var i = 0; i < tags.length; i++) { %>
+            <div style="border: 3px solid rgba(0, 86, 144, 0.1); border-radius: 5px; padding: 2px;">
+              <%= tags[i] %>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
   </td>

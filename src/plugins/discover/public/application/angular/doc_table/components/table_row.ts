@@ -45,6 +45,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { IArchiveJson } from 'src/plugins/discover/common/IArchiveJson';
 import { IDicomFile } from 'src/plugins/discover/common/getS3KeysByFileNames';
+import { ES3GatewayApiUrl } from '../../../../../common/api';
 import openRowHtml from './table_row/open.html';
 import detailsHtml from './table_row/details.html';
 
@@ -52,7 +53,6 @@ import { dispatchRenderComplete, url } from '../../../../../../opensearch_dashbo
 import {
   DOC_HIDE_TIME_COLUMN_SETTING,
   S3_GATEWAY_API,
-  S3_GATEWAY_API_ARCHIVE_LINK,
   S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
@@ -66,6 +66,8 @@ import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_he
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { ViewerOpenModal } from './viewer_modal/viewer_open_modal';
+import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
+import { StudyTagsModal } from './study_tags_modal/study_tags_modal';
 import { getS3UrlFromPlatform, parseSourceToIDicomJson } from './viewer_modal/utils';
 
 const TAGS_WITH_WS = />\s+</g;
@@ -160,6 +162,62 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         ReactDOM.render(viewerModal, container);
       };
 
+      $scope.editStudyComments = () => {
+        const closeModal = (updatedComment?: string) => {
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container);
+
+          if (updatedComment || updatedComment === '') {
+            $scope.row._source.Comments = updatedComment;
+            rerenderRow();
+          }
+        };
+
+        const studyCommentsModal = React.createElement(StudyCommentsModal, {
+          _id: $scope.row._id,
+          index: $scope.row._index,
+          source: $scope.row._source,
+          title: 'Edit study comments',
+          onClose: (updatedComment?: string) => closeModal(updatedComment),
+        });
+
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        ReactDOM.render(studyCommentsModal, container);
+      };
+
+      $scope.isAvailableCommenting = () => {
+        return !!$scope.indexPattern.fields.getByName('Comments');
+      };
+
+      $scope.editStudyTags = () => {
+        const closeModal = (updatedTags?: string[]) => {
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container);
+
+          if (updatedTags) {
+            $scope.row._source.Tags = updatedTags;
+            rerenderRow();
+          }
+        };
+
+        const studyTagsModal = React.createElement(StudyTagsModal, {
+          _id: $scope.row._id,
+          index: $scope.row._index,
+          source: $scope.row._source,
+          title: 'Edit study tags',
+          onClose: (updatedTags?: string[]) => closeModal(updatedTags),
+        });
+
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        ReactDOM.render(studyTagsModal, container);
+      };
+
+      $scope.isTagAvailable = () => {
+        return !!$scope.indexPattern.fields.getByName('Tags');
+      };
+
       $scope.openViewerInNewTab = () => {
         const bucket = $scope.row._source.dicom_filepath.split('/')[2];
         const s3path = $scope.row._source.dicom_filepath.replace(`s3://${bucket}/`, '');
@@ -250,10 +308,19 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         )}?${hash}`;
       };
 
+      function rerenderRow() {
+        $scope.indexPattern.deleteFormatCachedHit($scope.row);
+        createSummaryRow($scope.row, true);
+        if ($scope.open) {
+          $scope.toggleRow();
+          $scope.toggleRow();
+        }
+      }
+
       // create a tr element that lists the value for each *column*
-      function createSummaryRow(row: any) {
+      function createSummaryRow(row: any, isClearCache = false) {
         const indexPattern = $scope.indexPattern;
-        $scope.flattenedRow = indexPattern.flattenHit(row);
+        $scope.flattenedRow = indexPattern.flattenHit(row, false, isClearCache);
 
         // We just create a string here because its faster.
         const newHtmls = [openRowHtml];
@@ -278,6 +345,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
             cellTemplate({
               timefield: false,
               sourcefield: column === '_source',
+              tags: row._source.Tags && row._source.Tags.length > 0 ? row._source.Tags : undefined,
               formatted: _displayField(row, column, true),
               filterable: isFilterable,
               column,
@@ -288,7 +356,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         newHtmls.push(
           cellActionsTemplate({
             downloadButtonName: row._id,
-            column: 'Action',
+            column: 'Actions',
           })
         );
 
@@ -348,7 +416,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         return new Promise((resolve, reject) => {
           const oReq = new XMLHttpRequest();
           const urlPlatform = `${
-            uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_ARCHIVE_LINK)
+            uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.ARCHIVE_LINK_GET
           }`;
 
           oReq.addEventListener('error', (error) => {

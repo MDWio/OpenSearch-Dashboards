@@ -52,6 +52,11 @@ export function formatHitProvider(indexPattern: IndexPattern, defaultFormat: any
     return format.convert(val, type, { field, hit, indexPattern });
   }
 
+  function deleteFormatCachedHit(hit: Record<string, any>) {
+    formattedCache.delete(hit);
+    partialFormattedCache.delete(hit);
+  }
+
   function formatHit(hit: Record<string, any>, type: string = 'html') {
     if (type === 'text') {
       // formatHit of type text is for react components to get rid of <span ng-non-bindable>
@@ -103,6 +108,10 @@ export function formatHitProvider(indexPattern: IndexPattern, defaultFormat: any
 
     const val = fieldName === '_source' ? hit._source : indexPattern.flattenHit(hit)[fieldName];
     return convert(hit, val, fieldName);
+  };
+
+  formatHit.deleteFormatCachedHit = function (hit: Record<string, any>) {
+    deleteFormatCachedHit(hit);
   };
 
   return formatHit;

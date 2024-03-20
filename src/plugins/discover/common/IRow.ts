@@ -24,6 +24,7 @@ export interface ISource {
   BitsStored: string;
   BodyPartExamined: string;
   Columns: string[];
+  Comments: string;
   ContentDate: string;
   ContentTime: string;
   ContrastBolusAgent: string;
@@ -74,6 +75,7 @@ export interface ISource {
   StudyID: string;
   StudyInstanceUID: string;
   StudyTime: string;
+  Tags: string[];
   ViewPosition: string;
   WindowCenter: string;
   WindowWidth: string;
