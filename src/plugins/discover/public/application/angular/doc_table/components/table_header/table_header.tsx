@@ -65,7 +65,7 @@ export function TableHeader({
 }: Props) {
   const columnsParsed = JSON.parse(JSON.stringify(columns));
   columnsParsed.unshift('Object-selector');
-  columnsParsed.push('Action');
+  columnsParsed.push('Actions');
   const displayedColumns = getDisplayedColumns(
     columnsParsed,
     indexPattern,

@@ -113,7 +113,7 @@ export function ViewerOpenModal(props: Props) {
   }
 
   const HttpApiError = () => {
-    throw new Error('While retrieving S3 links from Marketplace: ' + JSON.stringify(errorMsg));
+    throw new Error('While retrieving S3 links from S3 gateway: ' + JSON.stringify(errorMsg));
   };
 
   return !props.openInNewTab ? (

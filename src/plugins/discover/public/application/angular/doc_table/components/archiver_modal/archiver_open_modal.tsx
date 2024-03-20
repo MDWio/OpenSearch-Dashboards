@@ -55,14 +55,13 @@ import {
 } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
 import { setTimeout } from 'timers';
+import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { IArchiveJson } from '../../../../../../common/IArchiveJson';
 
 import { getServices } from '../../../../../opensearch_dashboards_services';
 import {
   SAMPLE_SIZE_SETTING,
   S3_GATEWAY_API,
-  S3_GATEWAY_API_ARCHIVE_PROCESS_GET,
-  S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE,
   S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
@@ -432,9 +431,7 @@ export function ArchiverOpenModal(props: Props) {
   function createArchiveProcessToPlatform() {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
-      const url = `${
-        uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_ARCHIVE_PROCESS_CREATE)
-      }`;
+      const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.ARCHIVE_PROCESS_CREATE}`;
 
       oReq.addEventListener('error', (error) => {
         reject(
@@ -478,9 +475,7 @@ export function ArchiverOpenModal(props: Props) {
   function getArchiveProcessFromPlatform() {
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
-      const url = `${
-        uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_ARCHIVE_PROCESS_GET)
-      }`;
+      const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.ARCHIVE_PROCESS_GET}`;
 
       oReq.addEventListener('error', (error) => {
         reject(

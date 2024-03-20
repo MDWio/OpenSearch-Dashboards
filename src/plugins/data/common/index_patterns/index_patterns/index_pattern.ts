@@ -68,6 +68,7 @@ interface SavedObjectBody {
 }
 
 type FormatFieldFn = (hit: Record<string, any>, fieldName: string) => any;
+type DeleteFormatCachedHitFn = (hit: Record<string, any>) => void;
 
 export class IndexPattern implements IIndexPattern {
   public id?: string;
@@ -81,7 +82,9 @@ export class IndexPattern implements IIndexPattern {
   public formatHit: {
     (hit: Record<string, any>, type?: string): any;
     formatField: FormatFieldFn;
+    deleteFormatCachedHit: DeleteFormatCachedHitFn;
   };
+  public deleteFormatCachedHit: DeleteFormatCachedHitFn;
   public formatField: FormatFieldFn;
   public flattenHit: (hit: Record<string, any>, deep?: boolean) => Record<string, any>;
   public metaFields: string[];
@@ -112,6 +115,7 @@ export class IndexPattern implements IIndexPattern {
       fieldFormats.getDefaultInstance(OSD_FIELD_TYPES.STRING)
     );
     this.formatField = this.formatHit.formatField;
+    this.deleteFormatCachedHit = this.formatHit.deleteFormatCachedHit;
 
     // set values
     this.id = spec.id;

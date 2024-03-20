@@ -5,15 +5,12 @@
 
 /* eslint-disable no-console */
 import { IUiSettingsClient } from 'opensearch-dashboards/public';
-import {
-  S3_GATEWAY_API,
-  S3_GATEWAY_API_LINKS,
-  S3_GATEWAY_API_OPENSEARCH_KEY,
-} from '../../../../../../common';
+import { S3_GATEWAY_API, S3_GATEWAY_API_OPENSEARCH_KEY } from '../../../../../../common';
 
 import { ISource } from '../../../../../../common/IRow';
 
 import { IDicomJson } from '../../../../../../common/IDicomJson';
+import { ES3GatewayApiUrl } from '../../../../../../common/api';
 
 export function getS3UrlViaS3Gateway(
   fileNames: string[],
@@ -23,7 +20,7 @@ export function getS3UrlViaS3Gateway(
 ) {
   return new Promise((resolve, reject) => {
     const oReq = new XMLHttpRequest();
-    const url = `${uiSettings.get(S3_GATEWAY_API) + uiSettings.get(S3_GATEWAY_API_LINKS)}`;
+    const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.LINKS_LIST}`;
 
     oReq.addEventListener('error', (error) => {
       reject(
