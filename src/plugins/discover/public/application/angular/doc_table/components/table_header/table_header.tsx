@@ -64,8 +64,6 @@ export function TableHeader({
   onChangeAllSelected,
 }: Props) {
   const columnsParsed = JSON.parse(JSON.stringify(columns));
-  columnsParsed.unshift('Row-selector');
-  columnsParsed.push('Actions');
   const displayedColumns = getDisplayedColumns(
     columnsParsed,
     indexPattern,

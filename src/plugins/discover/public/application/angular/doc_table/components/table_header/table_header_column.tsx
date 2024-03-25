@@ -197,24 +197,22 @@ export function TableHeaderColumn({
           displayName
         )}
 
-        {displayName !== 'Row-selector' &&
-          displayName !== 'Actions' &&
-          buttons
-            .filter((button) => button.active)
-            .map((button, idx) => (
-              <EuiToolTip
-                id={`docTableHeader-${name}-tt`}
-                content={button.tooltip}
-                key={`button-${idx}`}
-              >
-                <button
-                  aria-label={button.ariaLabel}
-                  className={button.className}
-                  data-test-subj={button.testSubject}
-                  onClick={button.onClick}
-                />
-              </EuiToolTip>
-            ))}
+        {buttons
+          .filter((button) => button.active)
+          .map((button, idx) => (
+            <EuiToolTip
+              id={`docTableHeader-${name}-tt`}
+              content={button.tooltip}
+              key={`button-${idx}`}
+            >
+              <button
+                aria-label={button.ariaLabel}
+                className={button.className}
+                data-test-subj={button.testSubject}
+                onClick={button.onClick}
+              />
+            </EuiToolTip>
+          ))}
       </span>
     </th>
   );

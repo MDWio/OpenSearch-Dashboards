@@ -418,7 +418,7 @@ export function DiscoverLegacy({
                         <EuiFlexItem grow={false}>
                           <EuiFlexGroup gutterSize="s">
                             <EuiFlexItem grow={false}>
-                              <p>{selectedCount} Studies selected</p>
+                              <p style={{ marginTop: 7 }}>Selected Studies: {selectedCount}</p>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
