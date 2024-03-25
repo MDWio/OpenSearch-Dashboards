@@ -31,6 +31,7 @@
  */
 import React from 'react';
 import { i18n } from '@osd/i18n';
+import { EuiToolTip } from '@elastic/eui';
 import { SortOrder } from './helpers';
 
 interface Props {
@@ -186,7 +187,7 @@ export function TableHeaderColumn({
   return (
     <th data-test-subj="docTableHeaderField">
       <span data-test-subj={`docTableHeader-${name}`}>
-        {displayName === 'Object-selector' ? (
+        {displayName === 'Row-selector' ? (
           <input
             type="checkbox"
             defaultChecked={isAllSelected}
@@ -196,25 +197,24 @@ export function TableHeaderColumn({
           displayName
         )}
 
-        {
-          // TODO: These buttons are disabled because they don't work correctly.
-          /* {buttons
-          .filter((button) => button.active)
-          .map((button, idx) => (
-            <EuiToolTip
-              id={`docTableHeader-${name}-tt`}
-              content={button.tooltip}
-              key={`button-${idx}`}
-            >
-              <button
-                aria-label={button.ariaLabel}
-                className={button.className}
-                data-test-subj={button.testSubject}
-                onClick={button.onClick}
-              />
-            </EuiToolTip>
-          ))} */
-        }
+        {displayName !== 'Row-selector' &&
+          displayName !== 'Actions' &&
+          buttons
+            .filter((button) => button.active)
+            .map((button, idx) => (
+              <EuiToolTip
+                id={`docTableHeader-${name}-tt`}
+                content={button.tooltip}
+                key={`button-${idx}`}
+              >
+                <button
+                  aria-label={button.ariaLabel}
+                  className={button.className}
+                  data-test-subj={button.testSubject}
+                  onClick={button.onClick}
+                />
+              </EuiToolTip>
+            ))}
       </span>
     </th>
   );

@@ -286,7 +286,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         newHtmls.push(
           cellSelectionTemplate({
             row,
-            column: 'Object-selector',
+            column: 'Row-selector',
           })
         );
 

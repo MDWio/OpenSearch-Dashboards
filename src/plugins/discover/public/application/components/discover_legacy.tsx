@@ -144,6 +144,7 @@ export function DiscoverLegacy({
 }: DiscoverLegacyProps) {
   const [isSidebarClosed, setIsSidebarClosed] = useState(false);
   const [isAllSelected, setIsAllSelected] = useState(false);
+  const [selectedCount, setSelectedCount] = useState(0);
   const [showBar, setShowBar] = useState(false);
   const [isViewStudiesButtonDisable, setIsViewStudiesButtonDisable] = useState(true);
   const { TopNavMenu } = getServices().navigation.ui;
@@ -224,13 +225,26 @@ export function DiscoverLegacy({
     for (const row of rows) {
       row.isSelected = isSelected;
     }
+
+    setSelectedCount(isSelected && rows?.length ? rows.length : 0);
   }
 
   function onChangeRowSelection() {
     const selectedRows = rows?.filter((row) => row.isSelected);
-    setShowBar(selectedRows?.length > 0);
-    setIsViewStudiesButtonDisable(selectedRows?.length !== 2);
-    setIsAllSelected(selectedRows?.length === rows?.length);
+
+    if (showBar !== selectedRows?.length > 0) {
+      setShowBar(selectedRows?.length > 0);
+    }
+
+    if (isViewStudiesButtonDisable !== (selectedRows?.length !== 2)) {
+      setIsViewStudiesButtonDisable(selectedRows?.length !== 2);
+    }
+
+    if (isAllSelected !== (selectedRows?.length === rows?.length)) {
+      setIsAllSelected(selectedRows?.length === rows?.length);
+    }
+
+    setSelectedCount(selectedRows?.length ?? 0);
   }
 
   return (
@@ -400,7 +414,14 @@ export function DiscoverLegacy({
                   </div>
                   {showBar && (
                     <EuiBottomBar>
-                      <EuiFlexGroup justifyContent="flexStart">
+                      <EuiFlexGroup justifyContent="spaceBetween">
+                        <EuiFlexItem grow={false}>
+                          <EuiFlexGroup gutterSize="s">
+                            <EuiFlexItem grow={false}>
+                              <p>{selectedCount} Studies selected</p>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
                         <EuiFlexItem grow={false}>
                           <EuiFlexGroup gutterSize="s">
                             <EuiFlexItem grow={false}>
@@ -418,7 +439,7 @@ export function DiscoverLegacy({
                                   );
                                 }}
                               >
-                                View Studies
+                                Compare Studies
                               </EuiButton>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
@@ -436,7 +457,7 @@ export function DiscoverLegacy({
                                   );
                                 }}
                               >
-                                View Studies in a New Tab
+                                Compare Studies in a New Tab
                               </EuiButton>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
@@ -450,7 +471,7 @@ export function DiscoverLegacy({
                                   openArchiverModal(rows.filter((row) => row.isSelected));
                                 }}
                               >
-                                Download Selected Studies ZIP
+                                Download Selected Studies
                               </EuiButton>
                             </EuiFlexItem>
                           </EuiFlexGroup>
