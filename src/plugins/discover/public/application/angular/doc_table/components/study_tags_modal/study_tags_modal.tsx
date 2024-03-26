@@ -6,8 +6,6 @@
  * compatible open source license.
  */
 
-/* eslint-disable no-console */
-
 /*
  * Licensed to Elasticsearch B.V. under one or more contributor
  * license agreements. See the NOTICE file distributed with
@@ -51,8 +49,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { getServices } from '../../../../../opensearch_dashboards_services';
-import { S3_GATEWAY_API, S3_GATEWAY_API_OPENSEARCH_KEY } from '../../../../../../common';
 import { ISource } from '../../../../../../common/IRow';
+import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 
 interface Props {
   _id: string;
@@ -70,7 +68,6 @@ interface Option {
 }
 
 export function StudyTagsModal(props: Props) {
-  const uiSettings = getServices().uiSettings;
   const toastNotifications = getServices().toastNotifications;
 
   const [isLoading, setLoading] = useState(false);
@@ -133,89 +130,17 @@ export function StudyTagsModal(props: Props) {
   };
 
   function updateOpensearchDocTags() {
-    return new Promise((resolve, reject) => {
-      const oReq = new XMLHttpRequest();
-      const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_DOC_TAGS_UPDATE}`;
+    const body = {
+      id: props._id,
+      index: props.index,
+      value: selectedTagOptions.map((option) => option.label),
+    };
 
-      oReq.addEventListener('error', (error) => {
-        reject(
-          `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
-        );
-      });
-
-      oReq.addEventListener('load', () => {
-        if (!oReq.responseText) {
-          reject(new Error('Response was undefined'));
-        }
-
-        if (oReq.status === 401) {
-          reject('Authentication failed, please verify OPENSEARCH api token');
-        }
-
-        if (oReq.status !== 200 && oReq.status !== 201) {
-          try {
-            const parsedResponseText = JSON.parse(oReq.responseText);
-            reject(`${parsedResponseText.message}`);
-          } catch {
-            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
-          }
-        } else {
-          resolve({ response: oReq.responseText });
-        }
-      });
-
-      console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
-      oReq.setRequestHeader('Accept', 'application/json');
-      oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-      const body = {
-        id: props._id,
-        index: props.index,
-        value: selectedTagOptions.map((option) => option.label),
-      };
-
-      oReq.send(JSON.stringify(body));
-    });
+    return httpRequestToS3Gateway(ES3GatewayApiUrl.OPENSEARCH_DOC_TAGS_UPDATE, body);
   }
 
   function listSuggestedTags() {
-    return new Promise((resolve, reject) => {
-      const oReq = new XMLHttpRequest();
-      const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.LINKS_LIST}`;
-
-      oReq.addEventListener('error', (error) => {
-        reject(
-          `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
-        );
-      });
-
-      oReq.addEventListener('load', () => {
-        if (!oReq.responseText) {
-          console.warn('Response was undefined');
-          reject(new Error('Response was undefined'));
-        }
-
-        if (oReq.status === 401) {
-          reject('Authentication failed, please verify OPENSEARCH api token');
-        }
-
-        if (oReq.status !== 200 && oReq.status !== 201) {
-          reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
-        } else {
-          const data = JSON.parse(oReq.responseText);
-
-          resolve({ data });
-        }
-      });
-
-      console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
-      oReq.setRequestHeader('Accept', 'application/json');
-      oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-      oReq.send();
-    });
+    return httpRequestToS3Gateway(ES3GatewayApiUrl.OPENSEARCH_SUGGESTED_TAGS_LIST);
   }
 
   const onCreateOption = (

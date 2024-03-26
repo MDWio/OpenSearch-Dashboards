@@ -2,60 +2,22 @@
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-
-/* eslint-disable no-console */
-import { IUiSettingsClient } from 'opensearch-dashboards/public';
-import { S3_GATEWAY_API, S3_GATEWAY_API_OPENSEARCH_KEY } from '../../../../../../common';
-
 import { ISource } from '../../../../../../common/IRow';
 
 import { IDicomJson } from '../../../../../../common/IDicomJson';
 import { ES3GatewayApiUrl } from '../../../../../../common/api';
+import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 
 export function getS3UrlViaS3Gateway(
   fileNames: string[],
   bucket: string,
   s3path: string,
-  uiSettings: IUiSettingsClient
+  studyInstanceUID: string
 ) {
-  return new Promise((resolve, reject) => {
-    const oReq = new XMLHttpRequest();
-    const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.LINKS_LIST}`;
+  const fileNamesArray = Array.isArray(fileNames) ? fileNames : [fileNames];
+  const body = { fileNames: fileNamesArray, s3path, bucket, studyInstanceUID };
 
-    oReq.addEventListener('error', (error) => {
-      reject(
-        `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
-      );
-    });
-
-    oReq.addEventListener('load', () => {
-      if (!oReq.responseText) {
-        console.warn('Response was undefined');
-        reject(new Error('Response was undefined'));
-      }
-
-      if (oReq.status === 401) {
-        reject('Authentication failed, please verify OPENSEARCH api token');
-      }
-
-      if (oReq.status !== 200 && oReq.status !== 201) {
-        reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
-      } else {
-        const data = JSON.parse(oReq.responseText);
-
-        resolve({ data });
-      }
-    });
-
-    console.info(`Sending Request to: ${url}`);
-    oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
-    oReq.setRequestHeader('Accept', 'application/json');
-    oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-    const fileNamesArray = Array.isArray(fileNames) ? fileNames : [fileNames];
-
-    oReq.send(JSON.stringify({ fileNames: fileNamesArray, s3path, bucket }));
-  });
+  return httpRequestToS3Gateway(ES3GatewayApiUrl.LINKS_LIST, body);
 }
 
 export function parseSourceToIDicomJson(source: ISource) {
