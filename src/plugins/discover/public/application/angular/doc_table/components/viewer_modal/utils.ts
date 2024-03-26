@@ -12,7 +12,7 @@ import { ISource } from '../../../../../../common/IRow';
 import { IDicomJson } from '../../../../../../common/IDicomJson';
 import { ES3GatewayApiUrl } from '../../../../../../common/api';
 
-export function getS3UrlFromPlatform(
+export function getS3UrlViaS3Gateway(
   fileNames: string[],
   bucket: string,
   s3path: string,

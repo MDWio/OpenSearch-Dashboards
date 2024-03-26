@@ -14,14 +14,14 @@
     </div>
     <div class="osdDocTable__container osdDocTable__padBottom">
       <table class="osdDocTable table" ng-if="indexPattern">
-        <thead osd-table-header columns="columns" index-pattern="indexPattern" sort-order="sorting"
-          on-change-sort-order="onChangeSortOrder" on-move-column="onMoveColumn" on-remove-column="onRemoveColumn">
+        <thead osd-table-header columns="columns" index-pattern="indexPattern" sort-order="sorting" on-change-all-selected="onChangeAllSelected" 
+          is-all-selected="isAllSelected" on-change-sort-order="onChangeSortOrder" on-move-column="onMoveColumn" on-remove-column="onRemoveColumn">
         </thead>
         <tbody>
           <tr
             ng-repeat="row in pageOfItems|limitTo:limit track by row._index+row._type+row._id+row._score+row._version+row._routing"
-            osd-table-row="row" columns="columns" sorting="sorting" index-pattern="indexPattern" filter="filter"
-            class="osdDocTable__row" on-add-column="onAddColumn" on-remove-column="onRemoveColumn"></tr>
+            osd-table-row="row" columns="columns" sorting="sorting" index-pattern="indexPattern" filter="filter" open-viewer-modal="openViewerModal"
+            class="osdDocTable__row" on-add-column="onAddColumn" on-remove-column="onRemoveColumn" on-change-row-selection="onChangeRowSelection"></tr>
         </tbody>
       </table>
     </div>
@@ -41,15 +41,15 @@
   </div>
 
   <table ng-if="infiniteScroll" class="osd-table table" ng-if="indexPattern" data-test-subj="docTable">
-    <thead osd-table-header columns="columns" index-pattern="indexPattern" sort-order="sorting"
-      on-change-sort-order="onChangeSortOrder" on-move-column="onMoveColumn" on-remove-column="onRemoveColumn"></thead>
+    <thead osd-table-header columns="columns" index-pattern="indexPattern" sort-order="sorting" on-change-all-selected="onChangeAllSelected"
+      is-all-selected="isAllSelected" on-change-sort-order="onChangeSortOrder" on-move-column="onMoveColumn" on-remove-column="onRemoveColumn"></thead>
     <tbody>
       <tr
         ng-repeat="row in hits|limitTo:limit track by row._index+row._type+row._id+row._score+row._version+row._routing"
         osd-table-row="row" columns="columns" sorting="sorting" index-pattern="indexPattern" filter="filter"
         class="osdDocTable__row" ng-class="{'osdDocTable__row--highlight': row['$$_isAnchor']}"
         data-test-subj="docTableRow{{ row['$$_isAnchor'] ? ' docTableAnchorRow' : ''}}" on-add-column="onAddColumn"
-        on-remove-column="onRemoveColumn"></tr>
+        on-remove-column="onRemoveColumn" on-change-row-selection="onChangeRowSelection" open-viewer-modal="openViewerModal"></tr>
     </tbody>
   </table>
   <osd-infinite-scroll ng-if="infiniteScroll" more="addRows"></osd-infinite-scroll>

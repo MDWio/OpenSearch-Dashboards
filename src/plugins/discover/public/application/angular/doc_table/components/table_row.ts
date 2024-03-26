@@ -44,7 +44,6 @@ import ng from 'angular';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { IArchiveJson } from 'src/plugins/discover/common/IArchiveJson';
-import { IDicomFile } from 'src/plugins/discover/common/getS3KeysByFileNames';
 import { ES3GatewayApiUrl } from '../../../../../common/api';
 import openRowHtml from './table_row/open.html';
 import detailsHtml from './table_row/details.html';
@@ -56,19 +55,17 @@ import {
   S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
-  VIEWER_URL,
 } from '../../../../../common';
 import cellTemplateHtml from '../components/table_row/cell.html';
 import cellActionsTemplateHtml from '../components/table_row/cell-actions.html';
+import cellSelectionTemplateHtml from '../components/table_row/cell-selection.html';
 import downloadTemplateHtml from '../components/table_row/download.html';
 import loaderTemplateHtml from '../components/table_row/loader.html';
 import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_height.html';
 import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
-import { ViewerOpenModal } from './viewer_modal/viewer_open_modal';
 import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
 import { StudyTagsModal } from './study_tags_modal/study_tags_modal';
-import { getS3UrlFromPlatform, parseSourceToIDicomJson } from './viewer_modal/utils';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -93,6 +90,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
   const cellTemplate = template(noWhiteSpace(cellTemplateHtml));
   const cellActionsTemplate = template(noWhiteSpace(cellActionsTemplateHtml));
+  const cellSelectionTemplate = template(noWhiteSpace(cellSelectionTemplateHtml));
   const truncateByHeightTemplate = template(noWhiteSpace(truncateByHeightTemplateHtml));
 
   return {
@@ -104,6 +102,8 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       row: '=osdTableRow',
       onAddColumn: '=?',
       onRemoveColumn: '=?',
+      onChangeRowSelection: '=?',
+      openViewerModal: '=?',
     },
     link: ($scope: LazyScope, $el: JQuery) => {
       $el.after('<tr data-test-subj="docTableDetailsRow" class="osdDocTableDetails__row">');
@@ -145,21 +145,8 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         $compile($detailsTr)($detailsScope);
       };
 
-      $scope.openViewer = () => {
-        const closeModal = () => {
-          ReactDOM.unmountComponentAtNode(container);
-          document.body.removeChild(container);
-        };
-
-        const viewerModal = React.createElement(ViewerOpenModal, {
-          source: $scope.row._source,
-          title: 'View DICOM',
-          onClose: closeModal,
-        });
-
-        const container = document.createElement('div');
-        document.body.appendChild(container);
-        ReactDOM.render(viewerModal, container);
+      $scope.openViewer = (openInNewTab: boolean) => {
+        $scope.openViewerModal([$scope.row._source], openInNewTab);
       };
 
       $scope.editStudyComments = () => {
@@ -216,35 +203,6 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
       $scope.isTagAvailable = () => {
         return !!$scope.indexPattern.fields.getByName('Tags');
-      };
-
-      $scope.openViewerInNewTab = () => {
-        const bucket = $scope.row._source.dicom_filepath.split('/')[2];
-        const s3path = $scope.row._source.dicom_filepath.replace(`s3://${bucket}/`, '');
-        const uiSettingsClient = getServices().uiSettings;
-
-        getS3UrlFromPlatform($scope.row._source.FileName, bucket, s3path, uiSettingsClient)
-          .then((res) => {
-            const parsedLinks = res as IDicomFile[];
-
-            const parsedSource = parseSourceToIDicomJson($scope.row._source);
-            const stringSource = JSON.stringify(parsedSource);
-
-            const encodedUrl =
-              `${uiSettings.get(VIEWER_URL)}/viewer?json=` +
-              encodeURIComponent(stringSource) +
-              '&images=' +
-              encodeURIComponent(JSON.stringify(parsedLinks));
-
-            const tabOrWindow = window.open(encodedUrl, '_blank');
-            tabOrWindow!.focus();
-          })
-          .catch((err) => {
-            toastNotifications.addDanger({
-              title: `Error while getting data for Viewer`,
-              text: err,
-            });
-          });
       };
 
       $scope.downloadStudy = () => {
@@ -324,6 +282,13 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
         // We just create a string here because its faster.
         const newHtmls = [openRowHtml];
+
+        newHtmls.push(
+          cellSelectionTemplate({
+            row,
+            column: 'Row-selector',
+          })
+        );
 
         const mapping = indexPattern.fields.getByName;
         const hideTimeColumn = getServices().uiSettings.get(DOC_HIDE_TIME_COLUMN_SETTING, false);

@@ -109,6 +109,10 @@ export interface DocTableLegacyProps {
   onMoveColumn: (columns: string, newIdx: number) => void;
   onRemoveColumn: (column: string) => void;
   sort?: string[][];
+  isAllSelected: boolean;
+  onChangeAllSelected: (isAllSelected: boolean) => void;
+  onChangeRowSelection: () => void;
+  openViewerModal: (sources: any, openInNewTab: boolean) => void;
 }
 
 export function DocTableLegacy(renderProps: DocTableLegacyProps) {
@@ -129,6 +133,10 @@ export function DocTableLegacy(renderProps: DocTableLegacyProps) {
                 on-change-sort-order="onSort"
                 on-move-column="onMoveColumn"
                 on-remove-column="onRemoveColumn"
+                on-change-row-selection="onChangeRowSelection"
+                on-change-all-selected="onChangeAllSelected"
+                is-all-selected="isAllSelected"
+                open-viewer-modal="openViewerModal"
                 render-complete
                 sorting="sort"></doc_table>`,
     },

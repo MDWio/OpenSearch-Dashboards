@@ -42,16 +42,19 @@ import {
   EuiOverlayMask,
 } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
+import { IDicomJson } from 'src/plugins/discover/common/IDicomJson';
 import { getServices } from '../../../../../opensearch_dashboards_services';
 import { IDicomFile } from '../../../../../../common/getS3KeysByFileNames';
 import { VIEWER_URL } from '../../../../../../common';
 import { ISource } from '../../../../../../common/IRow';
-import { getS3UrlFromPlatform, parseSourceToIDicomJson } from './utils';
+import { getS3UrlViaS3Gateway, parseSourceToIDicomJson } from './utils';
 
 interface Props {
-  source: ISource;
+  sources: ISource[];
   onClose: () => void;
   title: string;
+  openInNewTab?: boolean;
+  isDualMod?: boolean;
 }
 
 export function ViewerOpenModal(props: Props) {
@@ -61,31 +64,47 @@ export function ViewerOpenModal(props: Props) {
   const [src, setSrc] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const bucket = props.source.dicom_filepath.split('/')[2];
-  const s3path = props.source.dicom_filepath.replace(`s3://${bucket}/`, '');
-
   useEffect(() => {
     setState('gettingS3Links');
-    getS3UrlFromPlatform(props.source.FileName, bucket, s3path, uiSettings)
-      .then((res) => {
-        const parsedLinks = res as IDicomFile[];
+    const parsedLinksToImages = new Array<IDicomFile[]>();
+    const parsedSource = new Array<IDicomJson>();
 
-        const parsedSource = parseSourceToIDicomJson(props.source);
-        const stringSource = JSON.stringify(parsedSource);
+    async function formDataForViewer() {
+      try {
+        for (const source of props.sources) {
+          const bucket = source.dicom_filepath.split('/')[2];
+          const s3path = source.dicom_filepath.replace(`s3://${bucket}/`, '');
 
-        const encodedUrl =
+          const res = await getS3UrlViaS3Gateway(source.FileName, bucket, s3path, uiSettings);
+          parsedLinksToImages.push(res as IDicomFile[]);
+          parsedSource.push(parseSourceToIDicomJson(source));
+        }
+
+        let encodedUrl =
           `${uiSettings.get(VIEWER_URL)}/viewer?json=` +
-          encodeURIComponent(stringSource) +
+          encodeURIComponent(JSON.stringify(parsedSource)) +
           '&images=' +
-          encodeURIComponent(JSON.stringify(parsedLinks));
+          encodeURIComponent(JSON.stringify(parsedLinksToImages));
 
-        setSrc(encodedUrl);
-        setState('s3LinksRetrieved');
-      })
-      .catch((err) => {
+        if (props.isDualMod) {
+          encodedUrl += '&isDualMod=true';
+        }
+
+        if (props.openInNewTab) {
+          const tabOrWindow = window.open(encodedUrl, '_blank');
+          tabOrWindow!.focus();
+          props.onClose();
+        } else {
+          setSrc(encodedUrl);
+          setState('s3LinksRetrieved');
+        }
+      } catch (err: any) {
         setErrorMsg(err);
         setState('error');
-      });
+      }
+    }
+
+    formDataForViewer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // array must be empty to avoid infinite loop
 
@@ -97,7 +116,7 @@ export function ViewerOpenModal(props: Props) {
     throw new Error('While retrieving S3 links from S3 gateway: ' + JSON.stringify(errorMsg));
   };
 
-  return (
+  return !props.openInNewTab ? (
     <EuiOverlayMask id="ViewerOverlay" style="padding: 0">
       <EuiModal id="ViewerModal" maxWidth="false" onClose={props.onClose}>
         <EuiModalHeader>
@@ -127,5 +146,7 @@ export function ViewerOpenModal(props: Props) {
         </EuiModalBody>
       </EuiModal>
     </EuiOverlayMask>
+  ) : (
+    <></>
   );
 }

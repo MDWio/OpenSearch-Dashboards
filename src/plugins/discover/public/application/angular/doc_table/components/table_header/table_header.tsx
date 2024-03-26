@@ -46,6 +46,8 @@ interface Props {
   onMoveColumn?: (name: string, index: number) => void;
   onRemoveColumn?: (name: string) => void;
   sortOrder: SortOrder[];
+  isAllSelected: boolean;
+  onChangeAllSelected: (isAllSelected: boolean) => void;
 }
 
 export function TableHeader({
@@ -58,9 +60,10 @@ export function TableHeader({
   onMoveColumn,
   onRemoveColumn,
   sortOrder,
+  isAllSelected,
+  onChangeAllSelected,
 }: Props) {
   const columnsParsed = JSON.parse(JSON.stringify(columns));
-  columnsParsed.push('Actions');
   const displayedColumns = getDisplayedColumns(
     columnsParsed,
     indexPattern,
@@ -79,9 +82,11 @@ export function TableHeader({
             sortOrder={
               sortOrder.length ? sortOrder : getDefaultSort(indexPattern, defaultSortOrder)
             }
+            isAllSelected={isAllSelected}
             onMoveColumn={onMoveColumn}
             onRemoveColumn={onRemoveColumn}
             onChangeSortOrder={onChangeSortOrder}
+            onChangeAllSelected={onChangeAllSelected}
           />
         );
       })}

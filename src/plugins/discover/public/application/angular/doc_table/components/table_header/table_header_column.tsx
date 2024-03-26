@@ -45,6 +45,8 @@ interface Props {
   onMoveColumn?: (name: string, idx: number) => void;
   onRemoveColumn?: (name: string) => void;
   sortOrder: SortOrder[];
+  isAllSelected: boolean;
+  onChangeAllSelected: (isAllSelected: boolean) => void;
 }
 
 const sortDirectionToIcon: Record<string, string> = {
@@ -64,6 +66,8 @@ export function TableHeaderColumn({
   onMoveColumn,
   onRemoveColumn,
   sortOrder,
+  isAllSelected,
+  onChangeAllSelected,
 }: Props) {
   const [, sortDirection = ''] = sortOrder.find((sortPair) => name === sortPair[0]) || [];
   const currentSortWithoutColumn = sortOrder.filter((pair) => pair[0] !== name);
@@ -183,7 +187,16 @@ export function TableHeaderColumn({
   return (
     <th data-test-subj="docTableHeaderField">
       <span data-test-subj={`docTableHeader-${name}`}>
-        {displayName}
+        {displayName === 'Row-selector' ? (
+          <input
+            type="checkbox"
+            defaultChecked={isAllSelected}
+            onChange={(e) => onChangeAllSelected(e.target.checked)}
+          />
+        ) : (
+          displayName
+        )}
+
         {buttons
           .filter((button) => button.active)
           .map((button, idx) => (

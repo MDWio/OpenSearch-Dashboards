@@ -76,6 +76,16 @@ export function getDisplayedColumns(
   if (!Array.isArray(columns) || typeof indexPattern !== 'object' || !indexPattern.getFieldByName) {
     return [];
   }
+  const prepareCustomColumn = (column: string) => {
+    return {
+      name: column,
+      displayName: isShortDots ? shortenDottedString(column) : column,
+      isSortable: false,
+      isRemoveable: false,
+      colLeftIdx: -1,
+      colRightIdx: -1,
+    };
+  };
   const columnProps = columns.map((column, idx) => {
     const field = indexPattern.getFieldByName(column);
     return {
@@ -87,6 +97,8 @@ export function getDisplayedColumns(
       colRightIdx: idx + 1 >= columns.length ? -1 : idx + 1,
     };
   });
+  columnProps.unshift(prepareCustomColumn('Row-selector'));
+  columnProps.push(prepareCustomColumn('Actions'));
   return !hideTimeField && indexPattern.timeFieldName
     ? [getTimeColumn(indexPattern.timeFieldName), ...columnProps]
     : columnProps;
