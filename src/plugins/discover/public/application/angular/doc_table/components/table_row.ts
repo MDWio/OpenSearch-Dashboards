@@ -363,7 +363,14 @@ export function createTableRowDirective($compile: ng.ICompileService) {
        */
       function _displayField(row: any, fieldName: string, truncate = false) {
         const indexPattern = $scope.indexPattern;
-        const text = indexPattern.formatField(row, fieldName);
+        let text = '';
+        if (fieldName === 'Tags' && row._source.Tags && row._source.Tags.length > 0) {
+          for (const tag of row._source.Tags) {
+            text += `<div style="border: 1px solid rgba(0, 86, 144, 0.1); background: rgba(0, 86, 144, 0.1); border-radius: 5px; padding: 1px; margin: 2px; text-align: center;">${tag}</div>`;
+          }
+        } else {
+          text = indexPattern.formatField(row, fieldName);
+        }
 
         if (truncate && text.length > MIN_LINE_LENGTH) {
           return truncateByHeightTemplate({
