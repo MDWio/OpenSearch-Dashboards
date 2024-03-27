@@ -409,7 +409,7 @@ export function ArchiverOpenModal(props: Props) {
                     <EuiLink className="download-link" href={archiveLink}>
                       Download
                     </EuiLink>
-                    <p className="warning-expiration">{' It expires on ' + expirationDate}</p>
+                    <p className="warning-expiration">{' The link expires on ' + expirationDate}</p>
                   </div>
                 ) : (
                   <p className="response"> {archiveLink} </p>
