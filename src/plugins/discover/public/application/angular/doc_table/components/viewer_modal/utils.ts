@@ -9,7 +9,7 @@ import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 
 export function getS3UrlViaS3Gateway(
-  fileNames: string[],
+  fileNames: string[] | string, // If there is one file, then OpenSearch returns string instead of array
   bucket: string,
   s3path: string,
   studyInstanceUID: string
