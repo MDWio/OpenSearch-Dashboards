@@ -445,12 +445,14 @@ export function ArchiverOpenModal(props: Props) {
     const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
 
     const emailField = email || undefined;
+    const index = props.rows[0]?._index;
 
     const body: IArchiveJson = {
       archivePath: archiveS3Path,
       email: emailField,
       archiveName,
       bucket: uiSettings.get(AMAZON_S3_ARCHIVE_BUCKET),
+      index,
       studies: [],
     };
 

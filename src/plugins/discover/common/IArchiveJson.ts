@@ -8,6 +8,7 @@ export interface IArchiveJson {
   archiveName: string;
   archivePath: string;
   bucket: string;
+  index: string;
   studies: IStudyJson[];
 }
 

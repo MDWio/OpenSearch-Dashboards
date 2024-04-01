@@ -117,7 +117,7 @@ export function StudyTagsModal(props: Props) {
       .then(() => {
         toastNotifications.addSuccess({
           title: `Update Study Tags`,
-          text: `Study Tags has been updated successfully for _id: ${props._id}`,
+          text: `Study Tags has been updated successfully for studyInstanceUID: ${props.source.StudyInstanceUID}`,
         });
         props.onClose(selectedTagOptions.map((option) => option.label));
       })
@@ -133,6 +133,7 @@ export function StudyTagsModal(props: Props) {
     const body = {
       id: props._id,
       index: props.index,
+      studyInstanceUID: props.source.StudyInstanceUID,
       value: selectedTagOptions.map((option) => option.label),
     };
 

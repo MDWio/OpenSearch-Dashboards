@@ -143,7 +143,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       };
 
       $scope.openViewer = (openInNewTab: boolean) => {
-        $scope.openViewerModal([$scope.row._source], openInNewTab);
+        $scope.openViewerModal([$scope.row._source], $scope.row._index, openInNewTab);
       };
 
       $scope.editStudyComments = () => {
@@ -395,6 +395,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           archivePath: archiveS3Path,
           archiveName,
           bucket: uiSettings.get(AMAZON_S3_ARCHIVE_BUCKET),
+          index: $scope.row._index,
           studies: [],
         };
 

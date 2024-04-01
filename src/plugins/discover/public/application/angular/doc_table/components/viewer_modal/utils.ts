@@ -11,11 +11,12 @@ import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 export function getS3UrlViaS3Gateway(
   fileNames: string[] | string, // If there is one file, then OpenSearch returns string instead of array
   bucket: string,
+  index: string,
   s3path: string,
   studyInstanceUID: string
 ) {
   const fileNamesArray = Array.isArray(fileNames) ? fileNames : [fileNames];
-  const body = { fileNames: fileNamesArray, s3path, bucket, studyInstanceUID };
+  const body = { fileNames: fileNamesArray, s3path, bucket, index, studyInstanceUID };
 
   return httpRequestToS3Gateway(ES3GatewayApiUrl.LINKS_LIST, body);
 }

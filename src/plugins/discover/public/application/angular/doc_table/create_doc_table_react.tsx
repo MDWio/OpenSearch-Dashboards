@@ -112,7 +112,7 @@ export interface DocTableLegacyProps {
   isAllSelected: boolean;
   onChangeAllSelected: (isAllSelected: boolean) => void;
   onChangeRowSelection: () => void;
-  openViewerModal: (sources: any, openInNewTab: boolean) => void;
+  openViewerModal: (sources: any, index: string, openInNewTab: boolean) => void;
 }
 
 export function DocTableLegacy(renderProps: DocTableLegacyProps) {

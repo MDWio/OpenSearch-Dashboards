@@ -71,7 +71,7 @@ export function StudyCommentsModal(props: Props) {
       .then(() => {
         toastNotifications.addSuccess({
           title: `Update Study Comments`,
-          text: `Study Comments has been updated successfully for _id: ${props._id}`,
+          text: `Study Comments has been updated successfully for studyInstanceUID: ${props.source.StudyInstanceUID}`,
         });
         props.onClose(newStudyCommentsValue);
       })
@@ -86,6 +86,7 @@ export function StudyCommentsModal(props: Props) {
   function updateOpensearchDocComments() {
     const body = {
       id: props._id,
+      studyInstanceUID: props.source.StudyInstanceUID,
       index: props.index,
       value: newStudyCommentsValue,
     };
