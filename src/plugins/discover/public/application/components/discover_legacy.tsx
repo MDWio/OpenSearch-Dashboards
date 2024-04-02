@@ -434,7 +434,8 @@ export function DiscoverLegacy({
                                 isDisabled={isViewStudiesButtonDisable}
                                 onClick={() => {
                                   const filteredRows: any[] = rows.filter((row) => row.isSelected);
-                                  const index = filteredRows[0]?._index;
+                                  const index =
+                                    filteredRows.length > 0 ? filteredRows[0]._index : '';
                                   const sources = filteredRows.map((row) => row._source);
                                   openViewerModal(sources, index, false, true);
                                 }}
@@ -451,7 +452,8 @@ export function DiscoverLegacy({
                                 isDisabled={isViewStudiesButtonDisable}
                                 onClick={() => {
                                   const filteredRows: any[] = rows.filter((row) => row.isSelected);
-                                  const index = filteredRows[0]?._index;
+                                  const index =
+                                    filteredRows.length > 0 ? filteredRows[0]._index : '';
                                   const sources = filteredRows.map((row) => row._source);
                                   openViewerModal(sources, index, true, true);
                                 }}
