@@ -51,6 +51,7 @@ import { getS3UrlViaS3Gateway, parseSourceToIDicomJson } from './utils';
 
 interface Props {
   sources: ISource[];
+  index: string;
   onClose: () => void;
   title: string;
   openInNewTab?: boolean;
@@ -75,7 +76,13 @@ export function ViewerOpenModal(props: Props) {
           const bucket = source.dicom_filepath.split('/')[2];
           const s3path = source.dicom_filepath.replace(`s3://${bucket}/`, '');
 
-          const res = await getS3UrlViaS3Gateway(source.FileName, bucket, s3path, uiSettings);
+          const res = await getS3UrlViaS3Gateway(
+            source.FileName,
+            bucket,
+            props.index,
+            s3path,
+            source.StudyInstanceUID
+          );
           parsedLinksToImages.push(res as IDicomFile[]);
           parsedSource.push(parseSourceToIDicomJson(source));
         }

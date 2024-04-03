@@ -6,8 +6,6 @@
  * compatible open source license.
  */
 
-/* eslint-disable no-console */
-
 /* eslint-disable no-unsanitized/property */
 
 /*
@@ -51,8 +49,6 @@ import detailsHtml from './table_row/details.html';
 import { dispatchRenderComplete, url } from '../../../../../../opensearch_dashboards_utils/public';
 import {
   DOC_HIDE_TIME_COLUMN_SETTING,
-  S3_GATEWAY_API,
-  S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
 } from '../../../../../common';
@@ -66,6 +62,7 @@ import { opensearchFilters } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
 import { StudyTagsModal } from './study_tags_modal/study_tags_modal';
+import { httpRequestToS3Gateway } from '../../helpers/httpRequest';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -146,7 +143,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       };
 
       $scope.openViewer = (openInNewTab: boolean) => {
-        $scope.openViewerModal([$scope.row._source], openInNewTab);
+        $scope.openViewerModal([$scope.row._source], $scope.row._index, openInNewTab);
       };
 
       $scope.editStudyComments = () => {
@@ -213,11 +210,11 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           downloadButton.innerHTML = loaderTemplateHtml;
 
           getArchiveLinkFromPlatform($scope.row._source)
-            .then((res) => {
+            .then((res: any) => {
               downloadButton.replaceChildren('');
               downloadButton.innerHTML = downloadTemplateHtml;
 
-              const result = JSON.parse((res as any).response);
+              const result = res.data;
               const newLink = document.createElement('a');
               newLink.href = result.archiveLink;
               newLink.click();
@@ -366,7 +363,14 @@ export function createTableRowDirective($compile: ng.ICompileService) {
        */
       function _displayField(row: any, fieldName: string, truncate = false) {
         const indexPattern = $scope.indexPattern;
-        const text = indexPattern.formatField(row, fieldName);
+        let text = '';
+        if (fieldName === 'Tags' && row._source.Tags && row._source.Tags.length > 0) {
+          for (const tag of row._source.Tags) {
+            text += `<div style="border: 1px solid rgba(0, 86, 144, 0.1); background: rgba(0, 86, 144, 0.1); border-radius: 5px; padding: 1px; margin: 2px; text-align: center;">${tag}</div>`;
+          }
+        } else {
+          text = indexPattern.formatField(row, fieldName);
+        }
 
         if (truncate && text.length > MIN_LINE_LENGTH) {
           return truncateByHeightTemplate({
@@ -378,47 +382,9 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       }
 
       function getArchiveLinkFromPlatform(rowSource: any) {
-        return new Promise((resolve, reject) => {
-          const oReq = new XMLHttpRequest();
-          const urlPlatform = `${
-            uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.ARCHIVE_LINK_GET
-          }`;
+        const body = composeBodyFromRow(rowSource);
 
-          oReq.addEventListener('error', (error) => {
-            reject(
-              `The url: '${urlPlatform}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
-            );
-          });
-
-          oReq.addEventListener('load', () => {
-            if (!oReq.responseText) {
-              console.warn('Response was undefined');
-              reject(new Error('Response was undefined'));
-            }
-
-            if (oReq.status === 401) {
-              reject('Authentication failed, please verify OPENSEARCH api token');
-            }
-
-            if (oReq.status !== 200 && oReq.status !== 201) {
-              reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
-            } else {
-              resolve({ response: oReq.responseText });
-            }
-          });
-
-          console.info(`Sending Request to: ${urlPlatform}`);
-          oReq.open(
-            'POST',
-            urlPlatform + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`
-          );
-          oReq.setRequestHeader('Accept', 'application/json');
-          oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-          const body = composeBodyFromRow(rowSource);
-
-          oReq.send(JSON.stringify(body));
-        });
+        return httpRequestToS3Gateway(ES3GatewayApiUrl.ARCHIVE_LINK_GET, body);
       }
 
       function composeBodyFromRow(rowSource: any) {
@@ -429,6 +395,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           archivePath: archiveS3Path,
           archiveName,
           bucket: uiSettings.get(AMAZON_S3_ARCHIVE_BUCKET),
+          index: $scope.row._index,
           studies: [],
         };
 

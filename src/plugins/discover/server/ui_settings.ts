@@ -267,7 +267,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.amazons3:archiveDevBucketTitle', {
       defaultMessage: 'Amazon archive bucket (dev)',
     }),
-    value: 'archive-upload-dev',
+    value: 'archive.marketplace.nanox.vision',
     description: i18n.translate('discover.advancedSettings.viewer.amazons3:archiveDevBucketText', {
       defaultMessage: 'Bucket for storing generated archives in Amazon S3 (dev)',
     }),
@@ -278,7 +278,7 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     name: i18n.translate('discover.advancedSettings.amazons3:archiveBucketTitle', {
       defaultMessage: 'Amazon archive bucket',
     }),
-    value: 'archive-upload',
+    value: 'archive.marketplace.nanox.vision',
     description: i18n.translate('discover.advancedSettings.viewer.amazons3:archiveBucketText', {
       defaultMessage: 'Bucket for storing generated archives in Amazon S3',
     }),

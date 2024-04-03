@@ -6,6 +6,8 @@
  * compatible open source license.
  */
 
+/* eslint-disable no-console */
+
 /*
  * Licensed to Elasticsearch B.V. under one or more contributor
  * license agreements. See the NOTICE file distributed with
@@ -58,9 +60,11 @@ import { getHistory } from './opensearch_dashboards_services';
 import { OpenSearchDashboardsLegacyStart } from '../../opensearch_dashboards_legacy/public';
 import { UrlForwardingStart } from '../../url_forwarding/public';
 import { NavigationPublicPluginStart } from '../../navigation/public';
+import { fetchAccountInfoSafe } from './auth';
 
 export interface DiscoverServices {
   addBasePath: (path: string) => string;
+  username: string;
   capabilities: Capabilities;
   chrome: ChromeStart;
   core: CoreStart;
@@ -99,9 +103,19 @@ export async function buildServices(
     overlays: core.overlays,
   };
   const savedObjectService = createSavedSearchesLoader(services);
+  let username = '';
+  try {
+    const accountInfo = await fetchAccountInfoSafe(core.http);
+    if (accountInfo) {
+      username = accountInfo.data.user_name;
+    }
+  } catch (error) {
+    console.error('Failed to fetch account info', error);
+  }
 
   return {
     addBasePath: core.http.basePath.prepend,
+    username,
     capabilities: core.application.capabilities,
     chrome: core.chrome,
     core,

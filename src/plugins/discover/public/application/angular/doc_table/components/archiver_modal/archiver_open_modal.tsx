@@ -8,8 +8,6 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
 
-/* eslint-disable no-console */
-
 /*
  * Licensed to Elasticsearch B.V. under one or more contributor
  * license agreements. See the NOTICE file distributed with
@@ -61,11 +59,10 @@ import { IArchiveJson } from '../../../../../../common/IArchiveJson';
 import { getServices } from '../../../../../opensearch_dashboards_services';
 import {
   SAMPLE_SIZE_SETTING,
-  S3_GATEWAY_API,
-  S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_PATH,
   AMAZON_S3_ARCHIVE_BUCKET,
 } from '../../../../../../common';
+import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 
 interface Props {
   rows: any;
@@ -76,6 +73,7 @@ interface Props {
 
 export function ArchiverOpenModal(props: Props) {
   const uiSettings = getServices().uiSettings;
+
   enum EArchiveRequestStatus {
     UNKNOWN = 'Unknown',
     LOADING = 'Loading...',
@@ -126,23 +124,22 @@ export function ArchiverOpenModal(props: Props) {
 
   const getArchiveStatus = async () => {
     if (ARCHIVE_PROCESS_ACTIVE_STATUSES.includes(archiveStatus)) {
-      getArchiveProcessFromPlatform()
+      getArchiveProcessFromS3Gateway()
         .then((res) => {
-          const archivingProcess = (res as any).response;
-          const archivingProcessObj = JSON.parse(archivingProcess);
-          setArchiveStatus(archivingProcessObj.status as EArchiveProcessStatus);
+          const archivingProcess = (res as any).data;
+          setArchiveStatus(archivingProcess.status as EArchiveProcessStatus);
 
-          if (archivingProcessObj.status === EArchiveProcessStatus.COMPLETED) {
-            setArchiveLink(archivingProcessObj.archiveLink);
+          if (archivingProcess.status === EArchiveProcessStatus.COMPLETED) {
+            setArchiveLink(archivingProcess.archiveLink);
 
-            if (archivingProcessObj.expirationDate) {
-              const parsedDate = new Date(archivingProcessObj.expirationDate);
+            if (archivingProcess.expirationDate) {
+              const parsedDate = new Date(archivingProcess.expirationDate);
               if (parsedDate) {
                 setExpirationDate(parsedDate.toLocaleDateString());
               }
             }
-          } else if (archivingProcessObj.status === EArchiveProcessStatus.FAILED) {
-            setErrorMessage(archivingProcessObj.errorMessage);
+          } else if (archivingProcess.status === EArchiveProcessStatus.FAILED) {
+            setErrorMessage(archivingProcess.errorMessage);
           } else {
             delay(delayInMs).then(() => {
               setLoopMutex(!loopMutex);
@@ -176,10 +173,10 @@ export function ArchiverOpenModal(props: Props) {
   const startArchiving = async () => {
     setRequestStatus(EArchiveRequestStatus.LOADING);
 
-    createArchiveProcessToPlatform()
-      .then((res) => {
+    createArchiveProcessToS3Gateway()
+      .then((res: any) => {
         setDelayInMs(getMsDelayByFilesAmount());
-        const result = JSON.parse((res as any).response);
+        const result = res.data;
         setRequestStatus(EArchiveRequestStatus.SUCCESS);
         setArchiveStatus(EArchiveProcessStatus.PENDING);
         setRequestUid(result.requestUid);
@@ -412,7 +409,7 @@ export function ArchiverOpenModal(props: Props) {
                     <EuiLink className="download-link" href={archiveLink}>
                       Download
                     </EuiLink>
-                    <p className="warning-expiration">{' It expires on ' + expirationDate}</p>
+                    <p className="warning-expiration">{' The link expires on ' + expirationDate}</p>
                   </div>
                 ) : (
                   <p className="response"> {archiveLink} </p>
@@ -428,92 +425,16 @@ export function ArchiverOpenModal(props: Props) {
     );
   }
 
-  function createArchiveProcessToPlatform() {
-    return new Promise((resolve, reject) => {
-      const oReq = new XMLHttpRequest();
-      const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.ARCHIVE_PROCESS_CREATE}`;
+  function createArchiveProcessToS3Gateway() {
+    const body = composeBodyFromRows();
 
-      oReq.addEventListener('error', (error) => {
-        reject(
-          `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
-        );
-      });
-
-      oReq.addEventListener('load', () => {
-        if (!oReq.responseText) {
-          console.warn('Response was undefined');
-          reject(new Error('Response was undefined'));
-        }
-
-        if (oReq.status === 401) {
-          reject('Authentication failed, please verify OPENSEARCH api token');
-        }
-
-        if (oReq.status !== 200 && oReq.status !== 201) {
-          try {
-            const parsedResponseText = JSON.parse(oReq.responseText);
-            reject(`${parsedResponseText.message}`);
-          } catch {
-            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
-          }
-        } else {
-          resolve({ response: oReq.responseText });
-        }
-      });
-
-      console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
-      oReq.setRequestHeader('Accept', 'application/json');
-      oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-      const body = composeBodyFromRows();
-
-      oReq.send(JSON.stringify(body));
-    });
+    return httpRequestToS3Gateway(ES3GatewayApiUrl.ARCHIVE_PROCESS_CREATE, body);
   }
 
-  function getArchiveProcessFromPlatform() {
-    return new Promise((resolve, reject) => {
-      const oReq = new XMLHttpRequest();
-      const url = `${uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.ARCHIVE_PROCESS_GET}`;
+  function getArchiveProcessFromS3Gateway() {
+    const body = { requestUid };
 
-      oReq.addEventListener('error', (error) => {
-        reject(
-          `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
-        );
-      });
-
-      oReq.addEventListener('load', () => {
-        if (!oReq.responseText) {
-          console.warn('Response was undefined');
-          reject(new Error('Response was undefined'));
-        }
-
-        if (oReq.status === 401) {
-          reject('Authentication failed, please verify OPENSEARCH api token');
-        }
-
-        if (oReq.status !== 200 && oReq.status !== 201) {
-          try {
-            const parsedResponseText = JSON.parse(oReq.responseText);
-            reject(`${parsedResponseText.message}`);
-          } catch {
-            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
-          }
-        } else {
-          resolve({ response: oReq.responseText });
-        }
-      });
-
-      console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
-      oReq.setRequestHeader('Accept', 'application/json');
-      oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-      const body = { requestUid };
-
-      oReq.send(JSON.stringify(body));
-    });
+    return httpRequestToS3Gateway(ES3GatewayApiUrl.ARCHIVE_PROCESS_GET, body);
   }
 
   function delay(ms: number) {
@@ -524,12 +445,14 @@ export function ArchiverOpenModal(props: Props) {
     const archiveS3Path = uiSettings.get(AMAZON_S3_ARCHIVE_PATH);
 
     const emailField = email || undefined;
+    const index = Array.isArray(props.rows) && props.rows.length > 0 ? props.rows[0]._index : '';
 
     const body: IArchiveJson = {
       archivePath: archiveS3Path,
       email: emailField,
       archiveName,
       bucket: uiSettings.get(AMAZON_S3_ARCHIVE_BUCKET),
+      index,
       studies: [],
     };
 

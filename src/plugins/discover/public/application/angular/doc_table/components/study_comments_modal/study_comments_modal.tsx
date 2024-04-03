@@ -6,8 +6,6 @@
  * compatible open source license.
  */
 
-/* eslint-disable no-console */
-
 /*
  * Licensed to Elasticsearch B.V. under one or more contributor
  * license agreements. See the NOTICE file distributed with
@@ -48,8 +46,8 @@ import {
 import React, { useState } from 'react';
 import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { getServices } from '../../../../../opensearch_dashboards_services';
-import { S3_GATEWAY_API, S3_GATEWAY_API_OPENSEARCH_KEY } from '../../../../../../common';
 import { ISource } from '../../../../../../common/IRow';
+import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 
 interface Props {
   _id: string;
@@ -60,7 +58,6 @@ interface Props {
 }
 
 export function StudyCommentsModal(props: Props) {
-  const uiSettings = getServices().uiSettings;
   const toastNotifications = getServices().toastNotifications;
 
   const [newStudyCommentsValue, setNewStudyCommentsValue] = useState(props.source.Comments);
@@ -74,7 +71,7 @@ export function StudyCommentsModal(props: Props) {
       .then(() => {
         toastNotifications.addSuccess({
           title: `Update Study Comments`,
-          text: `Study Comments has been updated successfully for _id: ${props._id}`,
+          text: `Study Comments has been updated successfully for studyInstanceUID: ${props.source.StudyInstanceUID}`,
         });
         props.onClose(newStudyCommentsValue);
       })
@@ -87,52 +84,14 @@ export function StudyCommentsModal(props: Props) {
   };
 
   function updateOpensearchDocComments() {
-    return new Promise((resolve, reject) => {
-      const oReq = new XMLHttpRequest();
-      const url = `${
-        uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_DOC_COMMENTS_UPDATE
-      }`;
+    const body = {
+      id: props._id,
+      studyInstanceUID: props.source.StudyInstanceUID,
+      index: props.index,
+      value: newStudyCommentsValue,
+    };
 
-      oReq.addEventListener('error', (error) => {
-        reject(
-          `The url: '${url}' is not reachable. Please, verify the url is correct. You can get more information in console logs (Dev Tools).`
-        );
-      });
-
-      oReq.addEventListener('load', () => {
-        if (!oReq.responseText) {
-          reject(new Error('Response was undefined'));
-        }
-
-        if (oReq.status === 401) {
-          reject('Authentication failed, please verify OPENSEARCH api token');
-        }
-
-        if (oReq.status !== 200 && oReq.status !== 201) {
-          try {
-            const parsedResponseText = JSON.parse(oReq.responseText);
-            reject(`${parsedResponseText.message}`);
-          } catch {
-            reject(`Request failed with status code: ${oReq.status}, ${oReq.responseText}`);
-          }
-        } else {
-          resolve({ response: oReq.responseText });
-        }
-      });
-
-      console.info(`Sending Request to: ${url}`);
-      oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
-      oReq.setRequestHeader('Accept', 'application/json');
-      oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-      const body = {
-        id: props._id,
-        index: props.index,
-        value: newStudyCommentsValue,
-      };
-
-      oReq.send(JSON.stringify(body));
-    });
+    return httpRequestToS3Gateway(ES3GatewayApiUrl.OPENSEARCH_DOC_COMMENTS_UPDATE, body);
   }
 
   return (
