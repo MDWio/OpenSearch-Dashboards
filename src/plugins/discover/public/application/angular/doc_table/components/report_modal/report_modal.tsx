@@ -53,6 +53,10 @@ interface Props {
   onClose: () => void;
 }
 
+interface HttpResponse {
+  data: string;
+}
+
 export function ReportModal(props: Props) {
   const [state, setState] = useState('');
   const [src, setSrc] = useState('');
@@ -63,7 +67,7 @@ export function ReportModal(props: Props) {
 
     async function formDataForReport() {
       try {
-        const signedUrl = ((await getSignedReportLink()) as any).data;
+        const signedUrl = ((await getSignedReportLink()) as HttpResponse).data;
 
         setSrc(signedUrl);
         setState('s3LinksRetrieved');
