@@ -18,7 +18,7 @@ export function getS3UrlViaS3Gateway(
   const fileNamesArray = Array.isArray(fileNames) ? fileNames : [fileNames];
   const body = { fileNames: fileNamesArray, s3path, bucket, index, studyInstanceUID };
 
-  return httpRequestToS3Gateway(ES3GatewayApiUrl.DICOM_LINK_LIST, body);
+  return httpRequestToS3Gateway(ES3GatewayApiUrl.DICOM_LINKS_LIST, body);
 }
 
 export function parseSourceToIDicomJson(source: ISource) {
