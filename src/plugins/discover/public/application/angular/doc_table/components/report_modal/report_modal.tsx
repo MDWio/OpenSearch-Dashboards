@@ -54,7 +54,9 @@ interface Props {
 }
 
 interface HttpResponse {
-  data: string;
+  data: {
+    reportLink: string;
+  };
 }
 
 export function ReportModal(props: Props) {
@@ -67,9 +69,9 @@ export function ReportModal(props: Props) {
 
     async function formDataForReport() {
       try {
-        const signedUrl = ((await getSignedReportLink()) as HttpResponse).data;
+        const response = ((await getSignedReportLink()) as HttpResponse).data;
 
-        setSrc(signedUrl);
+        setSrc(response.reportLink);
         setState('s3LinksRetrieved');
       } catch (err: any) {
         setErrorMsg(err);
