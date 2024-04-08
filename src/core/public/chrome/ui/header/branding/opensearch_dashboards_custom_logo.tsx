@@ -82,7 +82,7 @@ export const CustomLogo = ({ ...branding }: ChromeBranding) => {
   };
 
   return customHeaderLogo() ? (
-    <div className="logoContainer">
+    <div style={{ padding: '1px 3px 3px 5px', height: '35px' }}>
       <img
         data-test-subj="customLogo"
         data-test-image-url={customHeaderLogo()}

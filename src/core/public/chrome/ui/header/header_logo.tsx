@@ -120,7 +120,7 @@ export function HeaderLogo({ href, navigateToApp, branding, ...observables }: Pr
       aria-label={i18n.translate('core.ui.chrome.headerGlobalNav.goHomePageIconAriaLabel', {
         defaultMessage: 'Go to home page',
       })}
-      className="logoContainer"
+      style={{ padding: '1px 3px 3px 5px', height: '35px' }}
     >
       <CustomLogo {...branding} />
     </a>

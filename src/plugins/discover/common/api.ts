@@ -4,7 +4,9 @@
  */
 
 export enum ES3GatewayApiUrl {
-  LINKS_LIST = '/api/amazon/dicom/links/get',
+  DICOM_LINKS_LIST = '/api/amazon/dicom/links/list',
+
+  REPORT_LINK_GET = '/api/amazon/report/link/get',
 
   ARCHIVE_LINK_GET = '/api/amazon/archive/link/get',
   ARCHIVE_PROCESS_CREATE = '/api/amazon/archive/process/create',

@@ -63,6 +63,7 @@ import { getServices } from '../../../../opensearch_dashboards_services';
 import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
 import { StudyTagsModal } from './study_tags_modal/study_tags_modal';
 import { httpRequestToS3Gateway } from '../../helpers/httpRequest';
+import { ReportModal } from './report_modal/report_modal';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -170,8 +171,31 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         ReactDOM.render(studyCommentsModal, container);
       };
 
-      $scope.isAvailableCommenting = () => {
+      $scope.isCommentingAvailable = () => {
         return !!$scope.indexPattern.fields.getByName('Comments');
+      };
+
+      $scope.isAvailableReport = () => {
+        return !!$scope.row._source.html;
+      };
+
+      $scope.showReport = () => {
+        const closeModal = () => {
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container);
+        };
+
+        const reportModal = React.createElement(ReportModal, {
+          reportS3Path: $scope.row._source.html,
+          index: $scope.row._index,
+          studyInstanceUID: $scope.row._source.StudyInstanceUID,
+          title: 'View NLP Report',
+          onClose: () => closeModal(),
+        });
+
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        ReactDOM.render(reportModal, container);
       };
 
       $scope.editStudyTags = () => {
