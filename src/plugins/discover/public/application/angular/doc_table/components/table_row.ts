@@ -186,7 +186,9 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         };
 
         const reportModal = React.createElement(ReportModal, {
-          reportS3Path: $scope.row._source.html,
+          reportS3Paths: Array.isArray($scope.row._source.html)
+            ? $scope.row._source.html
+            : [$scope.row._source.html],
           index: $scope.row._index,
           studyInstanceUID: $scope.row._source.StudyInstanceUID,
           title: 'View NLP Report',
