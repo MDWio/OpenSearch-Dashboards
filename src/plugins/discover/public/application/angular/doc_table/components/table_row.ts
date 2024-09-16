@@ -443,12 +443,19 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       function getNLPReportLinks() {
         const links = new Array<string>();
 
+        const matchBucket = $scope.row._source.dicom_filepath.match(/^(s3:\/\/[^\/]+\/)/);
+        const bucket = matchBucket ? matchBucket[0] : '';
+
+        if (!bucket) {
+          return links;
+        }
+
         if ($scope.row._source.html_s3_bert_path) {
-          links.push($scope.row._source.html_s3_bert_path);
+          links.push(bucket + $scope.row._source.html_s3_bert_path);
         }
 
         if ($scope.row._source.html_s3_spacy_path) {
-          links.push($scope.row._source.html_s3_spacy_path);
+          links.push(bucket + $scope.row._source.html_s3_spacy_path);
         }
 
         return links;
