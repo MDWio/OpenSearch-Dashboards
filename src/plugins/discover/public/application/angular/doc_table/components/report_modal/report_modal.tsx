@@ -33,20 +33,25 @@
  */
 
 import {
+  EuiButton,
   EuiErrorBoundary,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiLoadingSpinner,
   EuiModal,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiOverlayMask,
+  EuiText,
+  EuiTextAlign,
 } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
 import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 
 interface Props {
-  reportS3Path: string;
+  reportS3Paths: string[];
   studyInstanceUID: string;
   index: string;
   title: string;
@@ -63,16 +68,28 @@ export function ReportModal(props: Props) {
   const [state, setState] = useState('');
   const [src, setSrc] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [currentReportIndex, setCurrentReportIndex] = useState(0);
 
   useEffect(() => {
-    setState('gettingS3Links');
+    setReport(currentReportIndex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // array must be empty to avoid infinite loop
+
+  function setReport(index: number) {
+    setCurrentReportIndex(index);
+    setState('gettingS3Link');
 
     async function formDataForReport() {
       try {
-        const response = ((await getSignedReportLink()) as HttpResponse).data;
+        const response = ((await getSignedReportLink(props.reportS3Paths[index])) as HttpResponse)
+          .data;
 
-        setSrc(response.reportLink);
-        setState('s3LinksRetrieved');
+        if (response.reportLink) {
+          setSrc(response.reportLink);
+          setState('s3LinksRetrieved');
+
+          return;
+        }
       } catch (err: any) {
         setErrorMsg(err);
         setState('error');
@@ -80,12 +97,11 @@ export function ReportModal(props: Props) {
     }
 
     formDataForReport();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // array must be empty to avoid infinite loop
+  }
 
-  function getSignedReportLink() {
-    const bucket = props.reportS3Path.split('/')[2];
-    const s3path = props.reportS3Path.replace(`s3://${bucket}/`, '');
+  function getSignedReportLink(reportPath: string) {
+    const bucket = reportPath.split('/')[2];
+    const s3path = reportPath.replace(`s3://${bucket}/`, '');
 
     const body = {
       s3path,
@@ -109,14 +125,53 @@ export function ReportModal(props: Props) {
     <EuiOverlayMask id="ReportOverlay" style="padding: 0">
       <EuiModal id="ReportModal" maxWidth="false" onClose={() => props.onClose()}>
         <EuiModalHeader>
-          <EuiModalHeaderTitle>
-            <span> {props.title} </span>
-            {state !== 'reportLoaded' && state !== 'error' ? (
-              <EuiLoadingSpinner title="Loading NLP Report" size="l" />
-            ) : (
-              ''
-            )}
-          </EuiModalHeaderTitle>
+          <EuiFlexGroup justifyContent="spaceBetween">
+            <EuiFlexItem grow={1}>
+              <EuiModalHeaderTitle>
+                <span> {props.title} </span>
+                {state !== 'reportLoaded' && state !== 'error' ? (
+                  <EuiLoadingSpinner title="Loading NLP Report" size="l" />
+                ) : (
+                  ''
+                )}
+              </EuiModalHeaderTitle>
+            </EuiFlexItem>
+            <EuiFlexItem grow={1}>
+              <EuiText className="reports-pager">
+                <EuiTextAlign textAlign="center">
+                  <span>
+                    {currentReportIndex + 1}/{props.reportS3Paths.length}
+                  </span>
+                </EuiTextAlign>
+              </EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={1}>
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <EuiButton
+                    fill
+                    onClick={
+                      currentReportIndex > 0 ? () => setReport(currentReportIndex - 1) : undefined
+                    }
+                  >
+                    Previous
+                  </EuiButton>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiButton
+                    fill
+                    onClick={
+                      currentReportIndex !== props.reportS3Paths.length - 1
+                        ? () => setReport(currentReportIndex + 1)
+                        : undefined
+                    }
+                  >
+                    Next
+                  </EuiButton>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiModalHeader>
         <EuiModalBody>
           <div className="iframe-container">
@@ -129,12 +184,7 @@ export function ReportModal(props: Props) {
                 </EuiErrorBoundary>
               </h1>
             ) : (
-              <iframe
-                onLoad={onReportLoaded}
-                src={src}
-                className="iframe"
-                title="View NLP Report"
-              />
+              <iframe onLoad={onReportLoaded} src={src} className="iframe" title="NLP Report" />
             )}
           </div>
         </EuiModalBody>
