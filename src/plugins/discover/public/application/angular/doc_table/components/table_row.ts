@@ -175,8 +175,8 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         return !!$scope.indexPattern.fields.getByName('Comments');
       };
 
-      $scope.isAvailableReport = () => {
-        return !!$scope.row._source.html;
+      $scope.isAvailableNLPReport = () => {
+        return !!($scope.row._source.html_s3_bert_path || $scope.row._source.html_s3_spacy_path);
       };
 
       $scope.showReport = () => {
@@ -186,7 +186,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         };
 
         const reportModal = React.createElement(ReportModal, {
-          reportS3Path: $scope.row._source.html,
+          reportS3Paths: getNLPReportLinks(),
           index: $scope.row._index,
           studyInstanceUID: $scope.row._source.StudyInstanceUID,
           title: 'View NLP Report',
@@ -438,6 +438,27 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         });
 
         return body;
+      }
+
+      function getNLPReportLinks() {
+        const links = new Array<string>();
+
+        const matchBucket = $scope.row._source.dicom_filepath.match(/^(s3:\/\/[^\/]+\/)/);
+        const bucket = matchBucket ? matchBucket[0] : '';
+
+        if (!bucket) {
+          return links;
+        }
+
+        if ($scope.row._source.html_s3_bert_path) {
+          links.push(bucket + $scope.row._source.html_s3_bert_path);
+        }
+
+        if ($scope.row._source.html_s3_spacy_path) {
+          links.push(bucket + $scope.row._source.html_s3_spacy_path);
+        }
+
+        return links;
       }
     },
   };
