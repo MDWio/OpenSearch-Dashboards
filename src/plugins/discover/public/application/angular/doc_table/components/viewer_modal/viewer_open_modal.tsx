@@ -80,7 +80,7 @@ export function ViewerOpenModal(props: Props) {
       try {
         const ids = props.ids;
         const token = uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY);
-        const baseUrl = uiSettings.get(VIEWER_URL);
+        const baseUrl = `${uiSettings.get(VIEWER_URL)}/viewer`;
         const nestedUrl = uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_JSON_GET;
         const isDualMod = props.isDualMod;
         const encodedNestedUrl = encodeURIComponent(
