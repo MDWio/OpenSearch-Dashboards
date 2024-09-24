@@ -4,8 +4,6 @@
  */
 
 export enum ES3GatewayApiUrl {
-  DICOM_LINKS_LIST = '/api/amazon/dicom/links/list',
-
   REPORT_LINK_GET = '/api/amazon/report/link/get',
 
   ARCHIVE_LINK_GET = '/api/amazon/archive/link/get',
@@ -15,4 +13,5 @@ export enum ES3GatewayApiUrl {
   OPENSEARCH_DOC_COMMENTS_UPDATE = '/api/opensearch/doc/comments/update',
   OPENSEARCH_DOC_TAGS_UPDATE = '/api/opensearch/doc/tags/update',
   OPENSEARCH_SUGGESTED_TAGS_LIST = '/api/opensearch/tags/list',
+  OPENSEARCH_JSON_GET = '/api/opensearch/json/get',
 }

@@ -144,7 +144,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
       };
 
       $scope.openViewer = (openInNewTab: boolean) => {
-        $scope.openViewerModal([$scope.row._source], $scope.row._index, openInNewTab);
+        $scope.openViewerModal([$scope.row._id], $scope.row._index, openInNewTab);
       };
 
       $scope.editStudyComments = () => {
