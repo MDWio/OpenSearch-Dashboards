@@ -63,7 +63,7 @@ import { getServices } from '../../../../opensearch_dashboards_services';
 import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
 import { StudyTagsModal } from './study_tags_modal/study_tags_modal';
 import { httpRequestToS3Gateway } from '../../helpers/httpRequest';
-import { ReportModal } from './report_modal/report_modal';
+import { INlpReport, ReportModal } from './report_modal/report_modal';
 
 const TAGS_WITH_WS = />\s+</g;
 
@@ -186,7 +186,7 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         };
 
         const reportModal = React.createElement(ReportModal, {
-          reportS3Paths: getNLPReportLinks(),
+          reports: getNLPReports(),
           index: $scope.row._index,
           studyInstanceUID: $scope.row._source.StudyInstanceUID,
           title: 'View NLP Report',
@@ -440,25 +440,25 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         return body;
       }
 
-      function getNLPReportLinks() {
-        const links = new Array<string>();
+      function getNLPReports() {
+        const reports = new Array<INlpReport>();
 
         const matchBucket = $scope.row._source.dicom_filepath.match(/^(s3:\/\/[^\/]+\/)/);
         const bucket = matchBucket ? matchBucket[0] : '';
 
         if (!bucket) {
-          return links;
+          return reports;
         }
 
         if ($scope.row._source.html_s3_bert_path) {
-          links.push(bucket + $scope.row._source.html_s3_bert_path);
+          reports.push({ url: bucket + $scope.row._source.html_s3_bert_path, title: 'Bert' });
         }
 
         if ($scope.row._source.html_s3_spacy_path) {
-          links.push(bucket + $scope.row._source.html_s3_spacy_path);
+          reports.push({ url: bucket + $scope.row._source.html_s3_spacy_path, title: 'Spacy' });
         }
 
-        return links;
+        return reports;
       }
     },
   };
