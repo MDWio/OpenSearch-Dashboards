@@ -199,14 +199,14 @@ export function DiscoverLegacy({
     ReactDOM.render(archiverModal, container);
   }
 
-  function openViewerModal(sources: any, index: string, openInNewTab: boolean, isDualMod = false) {
+  function openViewerModal(ids: string[], index: string, openInNewTab: boolean, isDualMod = false) {
     const closeModal = () => {
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
     };
 
     const viewerModal = React.createElement(ViewerOpenModal, {
-      sources,
+      ids,
       index,
       title: 'View DICOM',
       onClose: closeModal,
@@ -436,8 +436,8 @@ export function DiscoverLegacy({
                                   const filteredRows: any[] = rows.filter((row) => row.isSelected);
                                   const index =
                                     filteredRows.length > 0 ? filteredRows[0]._index : '';
-                                  const sources = filteredRows.map((row) => row._source);
-                                  openViewerModal(sources, index, false, true);
+                                  const ids = filteredRows.map((row) => row._id as string);
+                                  openViewerModal(ids, index, false, true);
                                 }}
                               >
                                 Compare Studies
@@ -454,8 +454,8 @@ export function DiscoverLegacy({
                                   const filteredRows: any[] = rows.filter((row) => row.isSelected);
                                   const index =
                                     filteredRows.length > 0 ? filteredRows[0]._index : '';
-                                  const sources = filteredRows.map((row) => row._source);
-                                  openViewerModal(sources, index, true, true);
+                                  const ids = filteredRows.map((row) => row._id as string);
+                                  openViewerModal(ids, index, true, true);
                                 }}
                               >
                                 Compare Studies in a New Tab

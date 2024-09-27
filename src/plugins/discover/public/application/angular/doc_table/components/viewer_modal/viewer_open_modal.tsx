@@ -42,20 +42,28 @@ import {
   EuiOverlayMask,
 } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
-import { IDicomJson } from 'src/plugins/discover/common/IDicomJson';
+import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { getServices } from '../../../../../opensearch_dashboards_services';
-import { IDicomFile } from '../../../../../../common/getS3KeysByFileNames';
-import { VIEWER_URL } from '../../../../../../common';
-import { ISource } from '../../../../../../common/IRow';
-import { getS3UrlViaS3Gateway, parseSourceToIDicomJson } from './utils';
+import {
+  S3_GATEWAY_API,
+  S3_GATEWAY_API_OPENSEARCH_KEY,
+  VIEWER_URL,
+} from '../../../../../../common';
 
 interface Props {
-  sources: ISource[];
+  ids: string[];
   index: string;
   onClose: () => void;
   title: string;
   openInNewTab?: boolean;
   isDualMod?: boolean;
+}
+
+enum EViewerState {
+  SETTING_URL = 'SETTING_URL',
+  LOADING_VIEWER = 'LOADING_VIEWER',
+  VIEWER_LOADED = 'VIEWER_LOADED',
+  ERROR = 'ERROR',
 }
 
 export function ViewerOpenModal(props: Props) {
@@ -66,48 +74,34 @@ export function ViewerOpenModal(props: Props) {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    setState('gettingS3Links');
-    const parsedLinksToImages = new Array<IDicomFile[]>();
-    const parsedSource = new Array<IDicomJson>();
+    setState(EViewerState.SETTING_URL);
 
     async function formDataForViewer() {
       try {
-        for (const source of props.sources) {
-          const bucket = source.dicom_filepath.split('/')[2];
-          const s3path = source.dicom_filepath.replace(`s3://${bucket}/`, '');
+        const ids = props.ids;
+        const token = uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY);
+        const baseUrl = `${uiSettings.get(VIEWER_URL)}/viewer`;
+        const nestedUrl = uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_JSON_GET;
+        const isDualMod = props.isDualMod;
+        const encodedNestedUrl = encodeURIComponent(
+          `${nestedUrl}?ids=${ids.join(',')}&index=${props.index}&openSearchKey=${token}`
+        );
 
-          const res = await getS3UrlViaS3Gateway(
-            source.FileName,
-            bucket,
-            props.index,
-            s3path,
-            source.StudyInstanceUID
-          );
-          parsedLinksToImages.push(res as IDicomFile[]);
-          parsedSource.push(parseSourceToIDicomJson(source));
-        }
-
-        let encodedUrl =
-          `${uiSettings.get(VIEWER_URL)}/viewer?json=` +
-          encodeURIComponent(JSON.stringify(parsedSource)) +
-          '&images=' +
-          encodeURIComponent(JSON.stringify(parsedLinksToImages));
-
-        if (props.isDualMod) {
-          encodedUrl += '&isDualMod=true';
-        }
+        const fullUrl =
+          `${baseUrl}?url=${encodedNestedUrl}&username=${getServices().username}` +
+          `&isDualMod=${isDualMod}`;
 
         if (props.openInNewTab) {
-          const tabOrWindow = window.open(encodedUrl, '_blank');
+          const tabOrWindow = window.open(fullUrl, '_blank');
           tabOrWindow!.focus();
           props.onClose();
         } else {
-          setSrc(encodedUrl);
-          setState('s3LinksRetrieved');
+          setState(EViewerState.LOADING_VIEWER);
+          setSrc(fullUrl);
         }
       } catch (err: any) {
         setErrorMsg(err);
-        setState('error');
+        setState(EViewerState.ERROR);
       }
     }
 
@@ -116,7 +110,7 @@ export function ViewerOpenModal(props: Props) {
   }, []); // array must be empty to avoid infinite loop
 
   function onViewerLoaded() {
-    setState('viewerLoaded');
+    setState(EViewerState.VIEWER_LOADED);
   }
 
   const HttpApiError = () => {
@@ -129,7 +123,7 @@ export function ViewerOpenModal(props: Props) {
         <EuiModalHeader>
           <EuiModalHeaderTitle>
             <span> {props.title} </span>
-            {state !== 'viewerLoaded' && state !== 'error' ? (
+            {state !== EViewerState.VIEWER_LOADED && state !== EViewerState.ERROR ? (
               <EuiLoadingSpinner title="Loading OHIF Viewer" size="l" />
             ) : (
               ''
@@ -138,9 +132,9 @@ export function ViewerOpenModal(props: Props) {
         </EuiModalHeader>
         <EuiModalBody>
           <div className="iframe-container">
-            {state === 'gettingS3Links' ? (
-              <h1> Getting links from S3... </h1>
-            ) : state === 'error' ? (
+            {state === EViewerState.SETTING_URL ? (
+              <h1> Setting URL... </h1>
+            ) : state === EViewerState.ERROR ? (
               <h1>
                 <EuiErrorBoundary>
                   <HttpApiError />

@@ -50,8 +50,13 @@ import React, { useEffect, useState } from 'react';
 import { ES3GatewayApiUrl } from '../../../../../../common/api';
 import { httpRequestToS3Gateway } from '../../../helpers/httpRequest';
 
+export interface INlpReport {
+  url: string;
+  title: string;
+}
+
 interface Props {
-  reportS3Paths: string[];
+  reports: INlpReport[];
   studyInstanceUID: string;
   index: string;
   title: string;
@@ -81,7 +86,7 @@ export function ReportModal(props: Props) {
 
     async function formDataForReport() {
       try {
-        const response = ((await getSignedReportLink(props.reportS3Paths[index])) as HttpResponse)
+        const response = ((await getSignedReportLink(props.reports[index].url)) as HttpResponse)
           .data;
 
         if (response.reportLink) {
@@ -139,9 +144,7 @@ export function ReportModal(props: Props) {
             <EuiFlexItem grow={1}>
               <EuiText className="reports-pager">
                 <EuiTextAlign textAlign="center">
-                  <span>
-                    {currentReportIndex + 1}/{props.reportS3Paths.length}
-                  </span>
+                  <span>{props.reports[currentReportIndex].title}</span>
                 </EuiTextAlign>
               </EuiText>
             </EuiFlexItem>
@@ -161,7 +164,7 @@ export function ReportModal(props: Props) {
                   <EuiButton
                     fill
                     onClick={
-                      currentReportIndex !== props.reportS3Paths.length - 1
+                      currentReportIndex !== props.reports.length - 1
                         ? () => setReport(currentReportIndex + 1)
                         : undefined
                     }
