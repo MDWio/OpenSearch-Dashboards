@@ -56,7 +56,7 @@ interface Props {
   onClose: () => void;
   title: string;
   openInNewTab?: boolean;
-  isDualMod?: boolean;
+  isMultipleMode?: boolean;
 }
 
 enum EViewerState {
@@ -79,17 +79,14 @@ export function ViewerOpenModal(props: Props) {
     async function formDataForViewer() {
       try {
         const ids = props.ids;
-        const token = uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY);
-        const baseUrl = `${uiSettings.get(VIEWER_URL)}/viewer`;
-        const nestedUrl = uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_JSON_GET;
-        const isDualMod = props.isDualMod;
+        const isMultipleMode = props.isMultipleMode;
         const encodedNestedUrl = encodeURIComponent(
           `${nestedUrl}?ids=${ids.join(',')}&index=${props.index}&openSearchKey=${token}`
         );
 
         const fullUrl =
           `${baseUrl}?url=${encodedNestedUrl}&username=${getServices().username}` +
-          `&isDualMod=${isDualMod}`;
+          `&isMultipleMode=${isMultipleMode}`;
 
         if (props.openInNewTab) {
           const tabOrWindow = window.open(fullUrl, '_blank');
