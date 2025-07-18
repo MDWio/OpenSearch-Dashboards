@@ -235,7 +235,7 @@ export function DiscoverLegacy({
     const newSelectedCount = isSelected && rows?.length ? rows.length : 0;
     setSelectedCount(newSelectedCount);
 
-    const shouldDisable = newSelectedCount < 2 || newSelectedCount > 4;
+    const shouldDisable = shouldDisableViewStudiesButton(newSelectedCount);
     setIsViewStudiesButtonDisable(shouldDisable);
   }
 
@@ -246,7 +246,7 @@ export function DiscoverLegacy({
       setShowBar(selectedRows?.length > 0);
     }
 
-    const shouldDisable = selectedRows?.length < 2 || selectedRows?.length > 4;
+    const shouldDisable = shouldDisableViewStudiesButton(selectedRows?.length ?? 0);
     if (isViewStudiesButtonDisable !== shouldDisable) {
       setIsViewStudiesButtonDisable(shouldDisable);
     }
@@ -256,6 +256,10 @@ export function DiscoverLegacy({
     }
 
     setSelectedCount(selectedRows?.length ?? 0);
+  }
+
+  function shouldDisableViewStudiesButton(count: number): boolean {
+    return count < 2 || count > 4;
   }
 
   return (
