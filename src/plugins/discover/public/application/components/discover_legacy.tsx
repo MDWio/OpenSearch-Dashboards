@@ -199,7 +199,12 @@ export function DiscoverLegacy({
     ReactDOM.render(archiverModal, container);
   }
 
-  function openViewerModal(ids: string[], index: string, openInNewTab: boolean, isDualMod = false) {
+  function openViewerModal(
+    ids: string[],
+    index: string,
+    openInNewTab: boolean,
+    isMultipleMode = false
+  ) {
     const closeModal = () => {
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
@@ -211,7 +216,7 @@ export function DiscoverLegacy({
       title: 'View DICOM',
       onClose: closeModal,
       openInNewTab,
-      isDualMod,
+      isMultipleMode,
     });
 
     const container = document.createElement('div');
@@ -227,7 +232,11 @@ export function DiscoverLegacy({
       row.isSelected = isSelected;
     }
 
-    setSelectedCount(isSelected && rows?.length ? rows.length : 0);
+    const newSelectedCount = isSelected && rows?.length ? rows.length : 0;
+    setSelectedCount(newSelectedCount);
+
+    const shouldDisable = shouldDisableViewStudiesButton(newSelectedCount);
+    setIsViewStudiesButtonDisable(shouldDisable);
   }
 
   function onChangeRowSelection() {
@@ -237,8 +246,9 @@ export function DiscoverLegacy({
       setShowBar(selectedRows?.length > 0);
     }
 
-    if (isViewStudiesButtonDisable !== (selectedRows?.length !== 2)) {
-      setIsViewStudiesButtonDisable(selectedRows?.length !== 2);
+    const shouldDisable = shouldDisableViewStudiesButton(selectedRows?.length ?? 0);
+    if (isViewStudiesButtonDisable !== shouldDisable) {
+      setIsViewStudiesButtonDisable(shouldDisable);
     }
 
     if (isAllSelected !== (selectedRows?.length === rows?.length)) {
@@ -246,6 +256,10 @@ export function DiscoverLegacy({
     }
 
     setSelectedCount(selectedRows?.length ?? 0);
+  }
+
+  function shouldDisableViewStudiesButton(count: number): boolean {
+    return count < 2 || count > 4;
   }
 
   return (
