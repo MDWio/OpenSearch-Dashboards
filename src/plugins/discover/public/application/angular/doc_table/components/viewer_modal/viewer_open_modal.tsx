@@ -79,6 +79,9 @@ export function ViewerOpenModal(props: Props) {
     async function formDataForViewer() {
       try {
         const ids = props.ids;
+        const token = uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY);
+        const baseUrl = `${uiSettings.get(VIEWER_URL)}/viewer`;
+        const nestedUrl = uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_JSON_GET;
         const isMultipleMode = props.isMultipleMode;
         const encodedNestedUrl = encodeURIComponent(
           `${nestedUrl}?ids=${ids.join(',')}&index=${props.index}&openSearchKey=${token}`
