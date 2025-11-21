@@ -4,11 +4,10 @@
  */
 
 import { getServices } from '../../../opensearch_dashboards_services';
-import { S3_GATEWAY_API, S3_GATEWAY_API_OPENSEARCH_KEY } from '../../../../common';
+import { S3_GATEWAY_API } from '../../../../common';
 
 export function httpRequestToS3Gateway(apiUrl: string, body?: any) {
   const uiSettings = getServices().uiSettings;
-  const username = getServices().username;
 
   return new Promise((resolve, reject) => {
     const oReq = new XMLHttpRequest();
@@ -46,10 +45,12 @@ export function httpRequestToS3Gateway(apiUrl: string, body?: any) {
 
     // eslint-disable-next-line no-console
     console.info(`Sending Request to: ${url}`);
-    oReq.open('POST', url + `?openSearchKey=${uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY)}`);
+
+    // Enable credentials to send cookies for authentication
+    oReq.withCredentials = true;
+    oReq.open('POST', url);
     oReq.setRequestHeader('Accept', 'application/json');
     oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    oReq.setRequestHeader('x-username', username);
 
     oReq.send(body ? JSON.stringify(body) : undefined);
   });

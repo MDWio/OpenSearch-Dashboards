@@ -48,8 +48,6 @@ import {
   MODIFY_COLUMNS_ON_SWITCH,
   S3_GATEWAY_API,
   S3_GATEWAY_DEV_API,
-  S3_GATEWAY_DEV_API_OPENSEARCH_KEY,
-  S3_GATEWAY_API_OPENSEARCH_KEY,
   AMAZON_S3_ARCHIVE_DEV_BUCKET,
   AMAZON_S3_ARCHIVE_BUCKET,
   AMAZON_S3_ARCHIVE_PATH,
@@ -215,28 +213,6 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     value: 'http://localhost:3600',
     description: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlText', {
       defaultMessage: 'S3 Gateway Dev DOMAIN URL',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_DEV_API_OPENSEARCH_KEY]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevApiKeyTitle', {
-      defaultMessage: 'S3 Gateway Dev API Key',
-    }),
-    value: 'SET_API_KEY',
-    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevApiKeyText', {
-      defaultMessage: 'Dev API key for S3 Gateway',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_API_OPENSEARCH_KEY]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiKeyTitle', {
-      defaultMessage: 'S3 Gateway API Key',
-    }),
-    value: 'SET_API_KEY',
-    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayApiKeyText', {
-      defaultMessage: 'API key for S3 Gateway',
     }),
     category: ['discover'],
     schema: schema.string(),
