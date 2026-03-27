@@ -78,6 +78,13 @@ export function noWhiteSpace(html: string): string {
 // guesstimate at the minimum number of chars wide cells in the table should be
 const MIN_LINE_LENGTH = 20;
 
+function getCurrentStudyFromURL(): string | null {
+  const hash = window.location.hash;
+  const match = hash.match(/[?&]currentStudy=([^&]+)/);
+
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 interface LazyScope extends ng.IScope {
   [key: string]: any;
 }
@@ -145,6 +152,50 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
       $scope.openViewer = (openInNewTab: boolean) => {
         $scope.openViewerModal([$scope.row._id], $scope.row._index, openInNewTab);
+      };
+
+      $scope.openRelatedStudies = () => {
+        const patientId = $scope.row._source.PatientID;
+        const studyUID = $scope.row._source.StudyInstanceUID;
+        const indexId = $scope.indexPattern.id;
+
+        if (!patientId || !studyUID) {
+          toastNotifications.addDanger({
+            title: 'Cannot open related studies',
+            text: 'The selected study is missing PatientID or StudyInstanceUID.',
+          });
+
+          return;
+        }
+
+        const patientFilter = {
+          meta: {
+            index: indexId,
+            key: 'PatientID',
+            params: { query: patientId },
+            type: 'phrase',
+          },
+          query: {
+            match_phrase: { PatientID: patientId },
+          },
+        };
+
+        const gState = rison.encode({ filters: [] });
+
+        const aState = rison.encode({
+          columns: $scope.columns,
+          filters: [patientFilter],
+          index: indexId,
+          sort: [['StudyDate', 'desc']],
+        });
+
+        const hashParams = stringify({ _g: gState, _a: aState }, { encode: false, sort: false });
+
+        const discoverPath = getServices().addBasePath('/app/discover');
+        window.open(
+          `${discoverPath}#/?currentStudy=${encodeURIComponent(studyUID)}&${hashParams}`,
+          '_blank'
+        );
       };
 
       $scope.editStudyComments = () => {
@@ -379,6 +430,15 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
         // trim off cells that were not used rest of the cells
         $cells.filter(':gt(' + (newHtmls.length - 1) + ')').remove();
+
+        // highlight this row if it matches the currentStudy in the URL
+        const currentStudyUID = getCurrentStudyFromURL();
+        if (currentStudyUID && row._source.StudyInstanceUID === currentStudyUID) {
+          $el.addClass('highlighted-row');
+        } else {
+          $el.removeClass('highlighted-row');
+        }
+
         dispatchRenderComplete($el[0]);
       }
 
