@@ -58,11 +58,12 @@ import cellSelectionTemplateHtml from '../components/table_row/cell-selection.ht
 import downloadTemplateHtml from '../components/table_row/download.html';
 import loaderTemplateHtml from '../components/table_row/loader.html';
 import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_height.html';
-import { opensearchFilters } from '../../../../../../data/public';
+import { opensearchFilters, FilterStateStore } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
 import { StudyTagsModal } from './study_tags_modal/study_tags_modal';
 import { httpRequestToS3Gateway } from '../../helpers/httpRequest';
+import { openInNewTab as openUrlInNewTab } from '../../helpers/window';
 import { INlpReport, ReportModal } from './report_modal/report_modal';
 
 const TAGS_WITH_WS = />\s+</g;
@@ -71,14 +72,14 @@ const TAGS_WITH_WS = />\s+</g;
  * Remove all of the whitespace between html tags
  * so that inline elements don't have extra spaces.
  */
-export function noWhiteSpace(html: string): string {
+export function noWhiteSpace(html: string) {
   return html.replace(TAGS_WITH_WS, '><');
 }
 
 // guesstimate at the minimum number of chars wide cells in the table should be
 const MIN_LINE_LENGTH = 20;
 
-function getCurrentStudyFromURL(): string | null {
+function getCurrentStudyFromURL() {
   const hash = window.location.hash;
   const match = hash.match(/[?&]currentStudy=([^&]+)/);
 
@@ -160,25 +161,25 @@ export function createTableRowDirective($compile: ng.ICompileService) {
         const indexId = $scope.indexPattern.id;
 
         if (!patientId || !studyUID) {
+          const missing = [!patientId && 'PatientID', !studyUID && 'StudyInstanceUID']
+            .filter(Boolean)
+            .join(' and ');
+
           toastNotifications.addDanger({
             title: 'Cannot open related studies',
-            text: 'The selected study is missing PatientID or StudyInstanceUID.',
+            text: `The selected study is missing ${missing}.`,
           });
 
           return;
         }
 
-        const patientFilter = {
-          meta: {
-            index: indexId,
-            key: 'PatientID',
-            params: { query: patientId },
-            type: 'phrase',
-          },
-          query: {
-            match_phrase: { PatientID: patientId },
-          },
-        };
+        const patientField = find($scope.indexPattern.fields, { name: 'PatientID' });
+        const patientFilter = opensearchFilters.buildPhraseFilter(
+          patientField,
+          patientId,
+          $scope.indexPattern
+        );
+        patientFilter.$state = { store: FilterStateStore.APP_STATE };
 
         const gState = rison.encode({ filters: [] });
 
@@ -189,12 +190,14 @@ export function createTableRowDirective($compile: ng.ICompileService) {
           sort: [['StudyDate', 'desc']],
         });
 
-        const hashParams = stringify({ _g: gState, _a: aState }, { encode: false, sort: false });
+        const hashParams = stringify(url.encodeQuery({ _g: gState, _a: aState }), {
+          encode: false,
+          sort: false,
+        });
 
         const discoverPath = getServices().addBasePath('/app/discover');
-        window.open(
-          `${discoverPath}#/?currentStudy=${encodeURIComponent(studyUID)}&${hashParams}`,
-          '_blank'
+        openUrlInNewTab(
+          `${discoverPath}#/?currentStudy=${encodeURIComponent(studyUID)}&${hashParams}`
         );
       };
 

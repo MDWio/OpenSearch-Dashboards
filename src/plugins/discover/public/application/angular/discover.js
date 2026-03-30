@@ -303,7 +303,8 @@ function discoverController($element, $route, $scope, $timeout, $window, Promise
       .split('&')
       .filter((p) => !p.startsWith('currentStudy='));
     const newHash = params.length ? `${base}?${params.join('&')}` : base;
-    window.history.replaceState(null, '', newHash || '#/');
+    const { pathname, search } = history.location;
+    history.replace({ pathname, search, hash: newHash || '#/' });
   };
 
   // this listener is waiting for such a path http://localhost:5601/app/discover#/
