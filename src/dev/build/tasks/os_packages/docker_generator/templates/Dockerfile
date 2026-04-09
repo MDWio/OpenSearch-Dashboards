@@ -52,15 +52,23 @@ EXPOSE 5601
 RUN for iter in {1..10}; do \
       {{packageManager}} update --setopt=tsflags=nodocs -y && \
       {{packageManager}} install --setopt=tsflags=nodocs -y \
-        fontconfig freetype shadow-utils libnss3.so {{#ubi}}findutils{{/ubi}} && \
+        fontconfig freetype shadow-utils nss {{#ubi}}findutils{{/ubi}} && \
       {{packageManager}} clean all && exit_code=0 && break || exit_code=$? && echo "{{packageManager}} error: retry $iter in 10s" && \
       sleep 10; \
     done; \
     (exit $exit_code)
 
 # Add an init process, check the checksum to make sure it's a match
-RUN curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
-RUN echo "37f2c1f0372a45554f1b89924fbb134fc24c3756efaedf11e07f599494e0eff9  /usr/local/bin/dumb-init" | sha256sum -c -
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64 && \
+        echo "37f2c1f0372a45554f1b89924fbb134fc24c3756efaedf11e07f599494e0eff9  /usr/local/bin/dumb-init" | sha256sum -c -; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_arm64 && \
+        echo "45b1bbf56cc03edda81e4220535a025bfe3ed6e93562222b9be4471005b3eeb3  /usr/local/bin/dumb-init" | sha256sum -c -; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi
 RUN chmod +x /usr/local/bin/dumb-init
 
 RUN mkdir /usr/share/fonts/local
@@ -131,8 +139,13 @@ RUN mkdir /licenses && \
 RUN chmod +x /usr/local/bin/opensearch-dashboards-docker
 
 USER opensearch-dashboards
-RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install [URL_TO_SECURITY_PLUGIN_ZIP]
-RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install [URL_TO_REPORTING_PLUGIN_ZIP]
+# Use curl (C binary) to download plugins to avoid x86_64 Node.js HTTPS issues under QEMU on ARM hosts
+RUN curl -L -o /tmp/security-dashboards.zip [URL_TO_SECURITY_PLUGIN_ZIP]&& \
+    /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install file:///tmp/security-dashboards.zip && \
+    rm /tmp/security-dashboards.zip && \
+    curl -L -o /tmp/reportsDashboards.zip [URL_TO_REPORTING_PLUGIN_ZIP] && \
+    /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install file:///tmp/reportsDashboards.zip && \
+    rm /tmp/reportsDashboards.zip
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
