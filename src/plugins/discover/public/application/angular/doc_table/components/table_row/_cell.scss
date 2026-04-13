@@ -2,6 +2,15 @@
   white-space: pre-wrap;
 }
 
+.highlighted-row > td {
+  background-color: transparentize($euiColorPrimary, 0.9) !important;
+  box-shadow: 0 2px 0 $euiColorPrimary inset, 0 -2px 0 $euiColorPrimary inset;
+}
+
+.highlighted-row + .osdDocTableDetails__row + .highlighted-row > td {
+  box-shadow: 0 -2px 0 $euiColorPrimary inset;
+}
+
 .osdDocTableCell__toggleDetails {
   padding: 4px 0 0 0!important;
 }

@@ -31,3 +31,4 @@
  */
 
 export { buildPointSeriesData } from './point_series';
+export { openInNewTab } from './window';

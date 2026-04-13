@@ -58,11 +58,12 @@ import cellSelectionTemplateHtml from '../components/table_row/cell-selection.ht
 import downloadTemplateHtml from '../components/table_row/download.html';
 import loaderTemplateHtml from '../components/table_row/loader.html';
 import truncateByHeightTemplateHtml from '../components/table_row/truncate_by_height.html';
-import { opensearchFilters } from '../../../../../../data/public';
+import { opensearchFilters, FilterStateStore } from '../../../../../../data/public';
 import { getServices } from '../../../../opensearch_dashboards_services';
 import { StudyCommentsModal } from './study_comments_modal/study_comments_modal';
 import { StudyTagsModal } from './study_tags_modal/study_tags_modal';
 import { httpRequestToS3Gateway } from '../../helpers/httpRequest';
+import { openInNewTab as openUrlInNewTab } from '../../helpers/window';
 import { INlpReport, ReportModal } from './report_modal/report_modal';
 
 const TAGS_WITH_WS = />\s+</g;
@@ -71,12 +72,19 @@ const TAGS_WITH_WS = />\s+</g;
  * Remove all of the whitespace between html tags
  * so that inline elements don't have extra spaces.
  */
-export function noWhiteSpace(html: string): string {
+export function noWhiteSpace(html: string) {
   return html.replace(TAGS_WITH_WS, '><');
 }
 
 // guesstimate at the minimum number of chars wide cells in the table should be
 const MIN_LINE_LENGTH = 20;
+
+function getCurrentStudyFromURL() {
+  const hash = window.location.hash;
+  const match = hash.match(/[?&]currentStudy=([^&]+)/);
+
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 interface LazyScope extends ng.IScope {
   [key: string]: any;
@@ -145,6 +153,52 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
       $scope.openViewer = (openInNewTab: boolean) => {
         $scope.openViewerModal([$scope.row._id], $scope.row._index, openInNewTab);
+      };
+
+      $scope.openRelatedStudies = () => {
+        const patientId = $scope.row._source.PatientID;
+        const studyUID = $scope.row._source.StudyInstanceUID;
+        const indexId = $scope.indexPattern.id;
+
+        if (!patientId || !studyUID) {
+          const missing = [!patientId && 'PatientID', !studyUID && 'StudyInstanceUID']
+            .filter(Boolean)
+            .join(' and ');
+
+          toastNotifications.addDanger({
+            title: 'Cannot open related studies',
+            text: `The selected study is missing ${missing}.`,
+          });
+
+          return;
+        }
+
+        const patientField = find($scope.indexPattern.fields, { name: 'PatientID' });
+        const patientFilter = opensearchFilters.buildPhraseFilter(
+          patientField,
+          patientId,
+          $scope.indexPattern
+        );
+        patientFilter.$state = { store: FilterStateStore.APP_STATE };
+
+        const gState = rison.encode({ filters: [] });
+
+        const aState = rison.encode({
+          columns: $scope.columns,
+          filters: [patientFilter],
+          index: indexId,
+          sort: [['StudyDate', 'desc']],
+        });
+
+        const hashParams = stringify(url.encodeQuery({ _g: gState, _a: aState }), {
+          encode: false,
+          sort: false,
+        });
+
+        const discoverPath = getServices().addBasePath('/app/discover');
+        openUrlInNewTab(
+          `${discoverPath}#/?currentStudy=${encodeURIComponent(studyUID)}&${hashParams}`
+        );
       };
 
       $scope.editStudyComments = () => {
@@ -379,6 +433,15 @@ export function createTableRowDirective($compile: ng.ICompileService) {
 
         // trim off cells that were not used rest of the cells
         $cells.filter(':gt(' + (newHtmls.length - 1) + ')').remove();
+
+        // highlight this row if it matches the currentStudy in the URL
+        const currentStudyUID = getCurrentStudyFromURL();
+        if (currentStudyUID && row._source.StudyInstanceUID === currentStudyUID) {
+          $el.addClass('highlighted-row');
+        } else {
+          $el.removeClass('highlighted-row');
+        }
+
         dispatchRenderComplete($el[0]);
       }
 

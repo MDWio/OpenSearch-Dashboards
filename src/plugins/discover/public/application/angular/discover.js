@@ -286,6 +286,27 @@ function discoverController($element, $route, $scope, $timeout, $window, Promise
     }
   });
 
+  const removeCurrentStudyFromURL = () => {
+    const hash = window.location.hash;
+    if (!hash.includes('currentStudy=')) {
+      return;
+    }
+
+    const qIndex = hash.indexOf('?');
+    if (qIndex === -1) {
+      return;
+    }
+
+    const base = hash.slice(0, qIndex); // e.g. "#/"
+    const params = hash
+      .slice(qIndex + 1)
+      .split('&')
+      .filter((p) => !p.startsWith('currentStudy='));
+    const newHash = params.length ? `${base}?${params.join('&')}` : base;
+    const { pathname, search } = history.location;
+    history.replace({ pathname, search, hash: newHash || '#/' });
+  };
+
   // this listener is waiting for such a path http://localhost:5601/app/discover#/
   // which could be set through pressing "New" button in top nav or go to "Discover" plugin from the sidebar
   // to reload the page in a right way
@@ -306,6 +327,8 @@ function discoverController($element, $route, $scope, $timeout, $window, Promise
         config.get(MODIFY_COLUMNS_ON_SWITCH)
       );
       await replaceUrlAppState(nextAppState);
+
+      removeCurrentStudyFromURL();
       $route.reload();
     }
   };
@@ -640,7 +663,8 @@ function discoverController($element, $route, $scope, $timeout, $window, Promise
     return (
       config.get(SEARCH_ON_PAGE_LOAD_SETTING) ||
       savedSearch.id !== undefined ||
-      timefilter.getRefreshInterval().pause === false
+      timefilter.getRefreshInterval().pause === false ||
+      window.location.hash.includes('currentStudy=')
     );
   };
 
@@ -795,6 +819,11 @@ function discoverController($element, $route, $scope, $timeout, $window, Promise
   $scope.opts.fetch = $scope.fetch = function () {
     // ignore requests to fetch before the app inits
     if (!init.complete) return;
+
+    if ($scope.fetchCounter > 0) {
+      removeCurrentStudyFromURL();
+    }
+
     $scope.fetchCounter++;
     $scope.fetchError = undefined;
     $scope.minimumVisibleRows = 50;
