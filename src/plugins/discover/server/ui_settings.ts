@@ -46,13 +46,9 @@ import {
   CONTEXT_STEP_SETTING,
   CONTEXT_TIE_BREAKER_FIELDS_SETTING,
   MODIFY_COLUMNS_ON_SWITCH,
-  S3_GATEWAY_API,
-  S3_GATEWAY_DEV_API,
   AMAZON_S3_ARCHIVE_DEV_BUCKET,
   AMAZON_S3_ARCHIVE_BUCKET,
   AMAZON_S3_ARCHIVE_PATH,
-  VIEWER_URL,
-  DEV_VIEWER_URL,
 } from '../common';
 
 export const uiSettings: Record<string, UiSettingsParams> = {
@@ -194,50 +190,6 @@ export const uiSettings: Record<string, UiSettingsParams> = {
     }),
     category: ['discover'],
     schema: schema.boolean(),
-  },
-  [S3_GATEWAY_API]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayUrlTitle', {
-      defaultMessage: 'S3 Gateway DOMAIN',
-    }),
-    value: 'http://localhost:3600',
-    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayUrlText', {
-      defaultMessage: 'S3 Gateway DOMAIN URL',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [S3_GATEWAY_DEV_API]: {
-    name: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlTitle', {
-      defaultMessage: 'S3 Gateway Dev DOMAIN',
-    }),
-    value: 'http://localhost:3600',
-    description: i18n.translate('discover.advancedSettings.viewer.s3GatewayDevUrlText', {
-      defaultMessage: 'S3 Gateway Dev DOMAIN URL',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [VIEWER_URL]: {
-    name: i18n.translate('discover.advancedSettings.viewer.viewerUrlTitle', {
-      defaultMessage: 'OHIF Viewer',
-    }),
-    value: 'http://localhost:3500',
-    description: i18n.translate('discover.advancedSettings.viewer.viewerUrlText', {
-      defaultMessage: 'Url to OHIF viewer',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
-  },
-  [DEV_VIEWER_URL]: {
-    name: i18n.translate('discover.advancedSettings.viewer.devViewerUrlTitle', {
-      defaultMessage: 'OHIF Viewer (dev)',
-    }),
-    value: 'http://localhost:3500',
-    description: i18n.translate('discover.advancedSettings.viewer.devViewerUrlText', {
-      defaultMessage: 'Url to OHIF viewer (dev)',
-    }),
-    category: ['discover'],
-    schema: schema.string(),
   },
   [AMAZON_S3_ARCHIVE_DEV_BUCKET]: {
     name: i18n.translate('discover.advancedSettings.amazons3:archiveDevBucketTitle', {
