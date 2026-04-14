@@ -497,4 +497,4 @@ export {
 } from './types';
 
 // Export plugin after all other imports
-export { DataPublicPlugin as Plugin };
+export { DataPublicPlugin as Plugin, FilterStateStore };
