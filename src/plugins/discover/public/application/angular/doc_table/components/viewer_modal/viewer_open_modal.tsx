@@ -43,12 +43,6 @@ import {
 } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
 import { ES3GatewayApiUrl } from '../../../../../../common/api';
-import { getServices } from '../../../../../opensearch_dashboards_services';
-import {
-  S3_GATEWAY_API,
-  S3_GATEWAY_API_OPENSEARCH_KEY,
-  VIEWER_URL,
-} from '../../../../../../common';
 
 interface Props {
   ids: string[];
@@ -67,8 +61,6 @@ enum EViewerState {
 }
 
 export function ViewerOpenModal(props: Props) {
-  const uiSettings = getServices().uiSettings;
-
   const [state, setState] = useState('');
   const [src, setSrc] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -79,17 +71,17 @@ export function ViewerOpenModal(props: Props) {
     async function formDataForViewer() {
       try {
         const ids = props.ids;
-        const token = uiSettings.get(S3_GATEWAY_API_OPENSEARCH_KEY);
-        const baseUrl = `${uiSettings.get(VIEWER_URL)}/viewer`;
-        const nestedUrl = uiSettings.get(S3_GATEWAY_API) + ES3GatewayApiUrl.OPENSEARCH_JSON_GET;
         const isMultipleMode = props.isMultipleMode;
+
+        // Root-relative paths work on any domain through the nginx proxy (check README in s3-gateway for more details)
+        const baseUrl = '/ohif/viewer';
+        const nestedUrl = ES3GatewayApiUrl.OPENSEARCH_JSON_GET;
+
         const encodedNestedUrl = encodeURIComponent(
-          `${nestedUrl}?ids=${ids.join(',')}&index=${props.index}&openSearchKey=${token}`
+          `${nestedUrl}?ids=${ids.join(',')}&index=${props.index}`
         );
 
-        const fullUrl =
-          `${baseUrl}?url=${encodedNestedUrl}&username=${getServices().username}` +
-          `&isMultipleMode=${isMultipleMode}`;
+        const fullUrl = `${baseUrl}?url=${encodedNestedUrl}&isMultipleMode=${isMultipleMode}`;
 
         if (props.openInNewTab) {
           const tabOrWindow = window.open(fullUrl, '_blank');
